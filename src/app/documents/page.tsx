@@ -10,9 +10,14 @@ import {
   Trash2,
   Eye,
   Loader2,
+  Search,
+  Calendar,
+  Building2,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
-// Assuming these types match your Mongoose model and API response
 interface Job {
   _id: string;
   jobTitle: string;
@@ -34,42 +39,34 @@ const TEMPLATES: Template[] = [
   {
     id: "classic",
     name: "Classic",
-    image: "https://placehold.co/300x400/F3F4F6/9CA3AF?text=Classic+Template",
+    image: "/images/templates/classic.jpg",
   },
   {
     id: "modern",
     name: "Modern",
-    image: "https://placehold.co/300x400/D1D5DB/6B7280?text=Modern+Template",
+    image: "/images/templates/mordern.jpg",
   },
   {
     id: "creative",
     name: "Creative",
-    image: "https://placehold.co/300x400/E5E7EB/4B5563?text=Creative+Template",
+    image: "/images/templates/creative.jpg",
   },
   {
     id: "minimalist",
     name: "Minimalist",
-    image:
-      "https://placehold.co/300x400/E5E7EB/4B5563?text=Minimalist+Template",
+    image: "/images/templates/minimalist.jpg",
   },
 ];
 
 export default function DocumentsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({
-    type: "",
-    text: "",
-    templateId: "",
-  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState<"date" | "score" | "title">("date");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [downloadType, setDownloadType] = useState<
-    "resume" | "coverLetter" | null
-  >(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const fetchJobs = async () => {
@@ -82,6 +79,7 @@ export default function DocumentsPage() {
       }
       const data = await response.json();
       setJobs(data);
+      setFilteredJobs(data);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -97,14 +95,45 @@ export default function DocumentsPage() {
     fetchJobs();
   }, []);
 
-  const handleDownloadClick = (type: "resume" | "coverLetter", job: Job) => {
-    setSelectedJob(job);
-    setDownloadType(type);
-    setIsDownloadModalOpen(true);
-  };
+  useEffect(() => {
+    let filtered = jobs.filter((job) => {
+      const jobTitle = job.jobTitle || "";
+      const companyName = job.companyName || "";
+      const searchLower = searchTerm.toLowerCase();
 
-  const handleDownloadWithTemplate = async (templateId: string) => {
-    if (!selectedJob || !downloadType) return;
+      return (
+        jobTitle.toLowerCase().includes(searchLower) ||
+        companyName.toLowerCase().includes(searchLower)
+      );
+    });
+
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case "date":
+          comparison =
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          break;
+        case "score":
+          comparison = (a.atsScore || 0) - (b.atsScore || 0);
+          break;
+        case "title":
+          const titleA = a.jobTitle || "";
+          const titleB = b.jobTitle || "";
+          comparison = titleA.localeCompare(titleB);
+          break;
+      }
+      return sortOrder === "desc" ? -comparison : comparison;
+    });
+
+    setFilteredJobs(filtered);
+  }, [jobs, searchTerm, sortBy, sortOrder]);
+
+  const handleDownload = async (
+    type: "resume" | "coverLetter",
+    job: Job,
+    templateId: string
+  ) => {
     setIsDownloading(true);
     try {
       const response = await fetch("/api/download", {
@@ -113,10 +142,11 @@ export default function DocumentsPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          tailoredResumeText: selectedJob.tailoredResumeText,
-          coverLetterText: selectedJob.coverLetterText,
-          documentType: downloadType,
+          tailoredResumeText: job.tailoredResumeText,
+          coverLetterText: job.coverLetterText,
+          documentType: type,
           templateId: templateId,
+          format: "pdf",
         }),
       });
 
@@ -125,302 +155,356 @@ export default function DocumentsPage() {
       }
 
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(new Blob([blob]));
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute(
         "download",
-        `${selectedJob.jobTitle
+        `${(job.jobTitle || "document")
           .replace(/\s+/g, "-")
-          .toLowerCase()}-${downloadType}-${templateId}.docx`
+          .toLowerCase()}-${type}-${templateId}.pdf`
       );
       document.body.appendChild(link);
       link.click();
-      link.parentNode?.removeChild(link);
+      link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Download Error:", err);
+      setError("Failed to download document");
     } finally {
       setIsDownloading(false);
-      setIsDownloadModalOpen(false);
-      setSelectedJob(null);
-      setDownloadType(null);
     }
   };
 
-  const handleDeleteClick = (job: Job) => {
-    setSelectedJob(job);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleDelete = async () => {
-    if (!selectedJob) return;
-
+  const handleDelete = async (jobId: string) => {
     try {
       const response = await fetch("/api/documents/delete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ documentId: selectedJob._id }),
+        body: JSON.stringify({ documentId: jobId }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to delete document");
       }
 
-      setJobs((prevJobs) =>
-        prevJobs.filter((job) => job._id !== selectedJob._id)
-      );
-      setIsDeleteModalOpen(false);
-      setSelectedJob(null);
+      setJobs((prev) => prev.filter((job) => job._id !== jobId));
     } catch (err) {
       console.error("Deletion Error:", err);
+      setError("Failed to delete document");
     }
   };
 
-  const handleView = (type: "resume" | "coverLetter", job: Job) => {
-    const text =
-      type === "resume" ? job.tailoredResumeText : job.coverLetterText;
-    setModalContent({ type, text, templateId: job.templateId });
-    setIsViewModalOpen(true);
+  const getScoreColor = (score: number) => {
+    if (score >= 90) return "text-green-600 bg-green-100";
+    if (score >= 70) return "text-yellow-600 bg-yellow-100";
+    return "text-red-600 bg-red-100";
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading your documents...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[var(--color-background)] py-16 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto max-w-5xl space-y-8">
-        <div className="flex justify-start">
-          <a href="/">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
+      <div className="container mx-auto max-w-6xl space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
             <Button
-              variant="outline"
-              className="text-[var(--color-text-secondary)] hover:bg-gray-200"
+              variant="ghost"
+              className="text-gray-600 hover:text-blue-600 mb-4"
+              onClick={() => window.history.back()}
             >
               <ArrowLeft size={16} className="mr-2" />
-              Back to Home
+              Back
             </Button>
-          </a>
+            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              My Documents
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Manage all your tailored resumes and cover letters
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600 bg-white px-3 py-1 rounded-full border">
+              {filteredJobs.length} document
+              {filteredJobs.length !== 1 ? "s" : ""}
+            </span>
+          </div>
         </div>
 
-        <div className="text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-[var(--color-text-primary)]">
-            My Documents
-          </h1>
-          <p className="mt-4 text-lg text-[var(--color-text-secondary)]">
-            View and manage all your generated documents here.
-          </p>
-        </div>
+        {/* Search and Filter */}
+        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search by job title or company..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
 
-        <div className="space-y-4">
-          {isLoading ? (
-            <div className="text-center text-[var(--color-text-secondary)]">
-              Loading documents...
-            </div>
-          ) : error ? (
-            <div className="text-center text-[var(--color-error)]">
-              Error: {error}
-            </div>
-          ) : jobs.length === 0 ? (
-            <div className="bg-[var(--color-card)] p-8 rounded-xl shadow-lg border border-gray-200">
-              <div className="text-center">
-                <h2 className="text-2xl font-semibold text-[var(--color-text-primary)]">
-                  No documents found
-                </h2>
-                <p className="mt-2 text-[var(--color-text-secondary)]">
-                  Your generated resumes and cover letters will appear here.
-                </p>
+              <div className="flex gap-2">
+                <select
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                >
+                  <option value="date">Sort by Date</option>
+                  <option value="score">Sort by Score</option>
+                  <option value="title">Sort by Title</option>
+                </select>
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10"
+                  onClick={() =>
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                  }
+                >
+                  {sortOrder === "asc" ? (
+                    <ChevronUp size={16} />
+                  ) : (
+                    <ChevronDown size={16} />
+                  )}
+                </Button>
               </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {jobs.map((job) => (
-                <div
-                  key={job._id}
-                  className="bg-[var(--color-card)] p-6 rounded-xl shadow-lg border border-gray-200 flex flex-col justify-between h-full"
-                >
-                  <div className="flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-[var(--color-text-primary)] mb-2">
-                      {job.jobTitle || "Untitled Job"}
-                    </h3>
-                    <p className="text-[var(--color-text-secondary)] mb-2">
-                      {job.companyName || "No Company"}
-                    </p>
-                    <p className="text-sm text-gray-400 mb-4">
-                      Generated on:{" "}
-                      {new Date(job.createdAt).toLocaleDateString()}
-                    </p>
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-lg font-semibold">
-                        ATS Score:
-                        <span className="text-[var(--color-primary)] ml-2">
-                          {job.atsScore}%
+          </CardContent>
+        </Card>
+
+        {/* Documents Grid */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        {filteredJobs.length === 0 ? (
+          <Card className="text-center py-16 bg-white/80 backdrop-blur-sm">
+            <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              {searchTerm ? "No documents found" : "No documents yet"}
+            </h3>
+            <p className="text-gray-500 mb-6">
+              {searchTerm
+                ? "Try adjusting your search terms"
+                : "Start by creating your first tailored resume"}
+            </p>
+            <Button
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              onClick={() => (window.location.href = "/")}
+            >
+              Create Your First Resume
+            </Button>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredJobs.map((job) => (
+              <Card
+                key={job._id}
+                className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <CardContent className="p-6">
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-800 text-lg mb-1 line-clamp-2">
+                        {job.jobTitle || "Untitled Job"}
+                      </h3>
+                      <div className="flex items-center gap-2 text-gray-600 mb-2">
+                        <Building2 size={14} />
+                        <span className="text-sm">
+                          {job.companyName || "No company"}
                         </span>
-                      </span>
+                      </div>
+                    </div>
+
+                    {/* ATS Score */}
+                    <div
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${getScoreColor(
+                        job.atsScore || 0
+                      )}`}
+                    >
+                      {job.atsScore || 0}%
                     </div>
                   </div>
-                  <div className="mt-4 flex flex-col gap-2">
-                    <Button
-                      className="w-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] flex items-center gap-2"
-                      onClick={() => handleView("resume", job)}
-                    >
-                      <Eye size={16} /> View Resume
-                    </Button>
-                    <div className="flex gap-2">
+
+                  {/* Date */}
+                  <div className="flex items-center gap-2 text-gray-500 text-sm mb-4">
+                    <Calendar size={14} />
+                    {new Date(job.createdAt).toLocaleDateString()}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
                       <Button
                         variant="outline"
-                        className="w-full text-[var(--color-text-secondary)] flex items-center gap-2"
-                        onClick={() => handleDownloadClick("resume", job)}
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          setSelectedJob(job);
+                          document
+                            .getElementById("view-resume-modal")
+                            ?.showModal();
+                        }}
                       >
-                        <Download size={16} />
-                        Resume
+                        <Eye size={14} className="mr-2" />
+                        View
                       </Button>
                       <Button
                         variant="outline"
-                        className="w-full text-[var(--color-text-secondary)] flex items-center gap-2"
-                        onClick={() => handleDownloadClick("coverLetter", job)}
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          setSelectedJob(job);
+                          document
+                            .getElementById("download-modal")
+                            ?.showModal();
+                        }}
                       >
-                        <Download size={16} />
-                        Cover Letter
+                        <Download size={14} className="mr-2" />
+                        Download
                       </Button>
                     </div>
+
                     <Button
                       variant="ghost"
-                      className="w-full text-[var(--color-error)] hover:bg-red-50"
-                      onClick={() => handleDeleteClick(job)}
+                      size="sm"
+                      className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDelete(job._id)}
                     >
-                      <Trash2 size={16} className="mr-2" />
+                      <Trash2 size={14} className="mr-2" />
                       Delete
                     </Button>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* View Modal */}
-      {isViewModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={() => setIsViewModalOpen(false)}
-        >
-          <div
-            className="bg-white p-6 rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center border-b pb-4 mb-4">
-              <h3 className="text-2xl font-bold">
-                {modalContent.type === "resume"
-                  ? "Tailored Resume"
-                  : "Cover Letter"}
-              </h3>
-              <Button onClick={() => setIsViewModalOpen(false)} variant="ghost">
-                Close
-              </Button>
-            </div>
-            <div className="whitespace-pre-line text-gray-700">
-              {modalContent.text}
-            </div>
+      <dialog id="view-resume-modal" className="modal">
+        <div className="modal-box max-w-4xl max-h-[80vh]">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg mb-4">
+            {selectedJob?.jobTitle || "Untitled Job"} - Resume
+          </h3>
+          <div className="prose max-w-none overflow-y-auto">
+            <pre className="whitespace-pre-wrap text-sm">
+              {selectedJob?.tailoredResumeText}
+            </pre>
           </div>
         </div>
-      )}
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
 
-      {/* Download Template Selection Modal */}
-      {isDownloadModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={() => setIsDownloadModalOpen(false)}
-        >
-          <div
-            className="bg-white p-6 rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center border-b pb-4 mb-4">
-              <h3 className="text-2xl font-bold">Select a Template</h3>
-              <Button
-                onClick={() => setIsDownloadModalOpen(false)}
-                variant="ghost"
+      {/* Download Modal */}
+      <dialog id="download-modal" className="modal">
+        <div className="modal-box max-w-2xl">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg mb-6">Download Document</h3>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <Button
+              variant="outline"
+              className="h-16 flex-col gap-2"
+              onClick={() =>
+                document.getElementById("template-modal")?.showModal()
+              }
+            >
+              <FileText size={20} />
+              <span>Resume</span>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-16 flex-col gap-2"
+              onClick={() =>
+                selectedJob &&
+                handleDownload(
+                  "coverLetter",
+                  selectedJob,
+                  selectedJob.templateId || "modern"
+                )
+              }
+              disabled={isDownloading}
+            >
+              <Download size={20} />
+              <span>Cover Letter</span>
+            </Button>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
+      {/* Template Selection Modal */}
+      <dialog id="template-modal" className="modal">
+        <div className="modal-box max-w-4xl">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <h3 className="font-bold text-lg mb-6">Choose Template</h3>
+
+          <div className="grid grid-cols-2 gap-4">
+            {TEMPLATES.map((template) => (
+              <div
+                key={template.id}
+                className="border rounded-lg p-4 hover:border-blue-400 cursor-pointer transition-colors"
+                onClick={() =>
+                  selectedJob &&
+                  handleDownload("resume", selectedJob, template.id)
+                }
               >
-                Close
-              </Button>
-            </div>
-            <p className="text-[var(--color-text-secondary)] mb-6">
-              Choose a new template to download your{" "}
-              {downloadType === "resume" ? "resume" : "cover letter"}.
-            </p>
-            <div className="flex justify-center flex-wrap gap-6">
-              {TEMPLATES.map((template) => (
-                <div
-                  key={template.id}
-                  onClick={() => handleDownloadWithTemplate(template.id)}
-                  className={`flex-shrink-0 cursor-pointer rounded-xl p-4 transition-all duration-200 ease-in-out border-2 border-gray-200 hover:border-[var(--color-primary)] hover:shadow-lg hover:scale-105`}
-                >
+                <div className="relative w-full h-40 mb-2">
                   <Image
                     src={template.image}
-                    alt={`${template.name} Template Preview`}
-                    width={300}
-                    height={400}
-                    className="w-full h-auto rounded-md shadow-sm mb-2"
-                    unoptimized
+                    alt={template.name}
+                    fill
+                    className="object-cover rounded"
                   />
-                  <p className="text-center font-medium text-[var(--color-text-secondary)]">
-                    {template.name}
-                  </p>
-                  <Button
-                    onClick={() => handleDownloadWithTemplate(template.id)}
-                    className="mt-2 w-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] flex items-center gap-2"
-                    disabled={isDownloading}
-                  >
-                    {isDownloading ? (
-                      <>
-                        <Loader2 className="animate-spin" size={16} />
-                        Downloading...
-                      </>
-                    ) : (
-                      <>
-                        <Download size={16} /> Download
-                      </>
-                    )}
-                  </Button>
                 </div>
-              ))}
-            </div>
+                <p className="text-center font-medium">{template.name}</p>
+              </div>
+            ))}
           </div>
         </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {isDeleteModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={() => setIsDeleteModalOpen(false)}
-        >
-          <div
-            className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-xl font-bold mb-4">Confirm Deletion</h3>
-            <p className="text-[var(--color-text-secondary)] mb-6">
-              Are you sure you want to delete this document? This action cannot
-              be undone.
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsDeleteModalOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={handleDelete}
-                className="text-[var(--color-error)]"
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
   );
 }

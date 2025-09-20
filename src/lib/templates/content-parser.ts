@@ -89,6 +89,136 @@ function isRedundantName(line: string, title: string): boolean {
   return line.trim().toLowerCase() === title.toLowerCase();
 }
 
+/**
+ * Intelligently parse project content for any resume (general solution)
+ */
+function parseProjectContent(content: string[]): string[] {
+  if (content.length === 0) return content;
+  
+  // If content already has bullet points or clear structure, return as is
+  if (content.some(line => line.trim().startsWith('-') || line.trim().startsWith('•') || line.trim().startsWith('*'))) {
+    return content.map(line => line.trim());
+  }
+  
+  // Join all content to analyze the full text
+  const fullText = content.join(' ');
+  
+  // Strategy 1: Look for natural sentence boundaries with proper punctuation
+  const sentenceRegex = /([^.!?]+[.!?])\s+(?=[A-Z])|([^.!?]+)$/g;
+  const sentences: string[] = [];
+  let match;
+  
+  while ((match = sentenceRegex.exec(fullText)) !== null) {
+    if (match[1]) sentences.push(match[1].trim());
+    if (match[2]) sentences.push(match[2].trim());
+  }
+  
+  if (sentences.length > 1 && sentences.every(s => s.length > 10 && s.length < 200)) {
+    return sentences;
+  }
+  
+  // Strategy 2: Look for common project patterns and technical phrases
+  const commonBulletStarters = [
+    'built', 'developed', 'implemented', 'utilized', 'designed', 
+    'created', 'deployed', 'integrated', 'optimized', 'led', 
+    'managed', 'collaborated', 'wrote', 'architected', 'configured',
+    'maintained', 'enhanced', 'automated', 'migrated', 'refactored'
+  ];
+  
+  const result: string[] = [];
+  let currentItem = '';
+  
+  for (const line of content) {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) continue;
+    
+    // Check if this line starts with a common bullet starter (case insensitive)
+    const lowerLine = trimmedLine.toLowerCase();
+    const startsWithBulletStarter = commonBulletStarters.some(starter => 
+      lowerLine.startsWith(starter) || 
+      lowerLine.startsWith(starter + ' ') ||
+      lowerLine.includes(' ' + starter + ' ')
+    );
+    
+    // Also check for project title patterns (short, might be capitalized)
+    const mightBeProjectTitle = 
+      trimmedLine.length < 50 && 
+      !startsWithBulletStarter &&
+      (trimmedLine === trimmedLine.toUpperCase() || 
+       !trimmedLine.includes(' ') ||
+       /^[A-Z][a-z]+([A-Z][a-z]+)*$/.test(trimmedLine));
+    
+    if ((startsWithBulletStarter || mightBeProjectTitle) && currentItem) {
+      result.push(currentItem.trim());
+      currentItem = trimmedLine;
+    } else {
+      if (currentItem) {
+        currentItem += ' ' + trimmedLine;
+      } else {
+        currentItem = trimmedLine;
+      }
+    }
+  }
+  
+  // Add the last item
+  if (currentItem) {
+    result.push(currentItem.trim());
+  }
+  
+  // If we found structured items, return them
+  if (result.length > 0) {
+    return result;
+  }
+  
+  // Strategy 3: Split by line breaks that seem intentional
+  if (content.length > 1) {
+    // If we have multiple lines but they don't form complete sentences together
+    const averageLength = fullText.length / content.length;
+    if (averageLength < 80) { // Lines are relatively short
+      return content.map(line => line.trim()).filter(line => line.length > 0);
+    }
+  }
+  
+  // Final fallback: return as single item
+  return [fullText];
+}
+
+/**
+ * Normalize experience section content
+ */
+function normalizeExperienceContent(content: string[]): string[] {
+  const result: string[] = [];
+  let currentEntry = '';
+  
+  for (const line of content) {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) continue;
+    
+    // Look for job entry patterns (dates, company names, locations)
+    const isJobHeader = 
+      /(19|20)\d{2}.*(Present|\d{4})/i.test(trimmedLine) || // Date ranges
+      /(Inc|Corp|LLC|Ltd|Company|Software|Technologies|Solutions)/i.test(trimmedLine) || // Company indicators
+      /[A-Z][a-z]+, [A-Z]{2}/.test(trimmedLine); // City, State pattern
+    
+    if (isJobHeader && currentEntry) {
+      result.push(currentEntry.trim());
+      currentEntry = trimmedLine;
+    } else {
+      if (currentEntry) {
+        currentEntry += ' ' + trimmedLine;
+      } else {
+        currentEntry = trimmedLine;
+      }
+    }
+  }
+  
+  if (currentEntry) {
+    result.push(currentEntry.trim());
+  }
+  
+  return result.length > 0 ? result : content;
+}
+
 export const parseContent = (
   content: string,
   documentType: TemplateType = "resume"
@@ -157,6 +287,17 @@ export const parseContent = (
         };
         parsedSections.push(currentSection);
       }
+    }
+  }
+
+  // Post-process sections to handle specific formatting issues
+  for (const section of parsedSections) {
+    if (section.type === "project") {
+      section.content = parseProjectContent(section.content);
+    }
+    
+    if (section.type === "experience") {
+      section.content = normalizeExperienceContent(section.content);
     }
   }
 

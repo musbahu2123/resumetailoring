@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Lock } from "lucide-react";
+import { Lock, Upload, FileText, Sparkles, Target } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import JobDescriptionSection from "@/components/JobDescriptionSection";
 import ResultsSection from "@/components/ResultsSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
-import EnterpriseSection from "@/components/EnterpriseSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
 import Loader from "@/components/Loader";
 
 interface SignInModalProps {
@@ -96,8 +96,8 @@ export default function LandingPage() {
     setError(null);
     setResults(null);
 
-    if (!jobDescriptionText || (!resumeText && !resumeFile)) {
-      setError("Please provide both a resume and a job description.");
+    if (!jobDescriptionText) {
+      setError("Please provide a job description.");
       setIsLoading(false);
       return;
     }
@@ -107,7 +107,7 @@ export default function LandingPage() {
       formData.append("jobDescriptionText", jobDescriptionText);
       if (resumeFile) {
         formData.append("resumeFile", resumeFile);
-      } else {
+      } else if (resumeText) {
         formData.append("resumeText", resumeText);
       }
 
@@ -147,10 +147,6 @@ export default function LandingPage() {
     }
   };
 
-  // ------------------------------------------
-  // The updated download handlers
-  // ------------------------------------------
-
   const handleDownloadResume = async (templateId: string) => {
     if (!results) {
       setError("No resume to download. Please generate it first.");
@@ -163,7 +159,7 @@ export default function LandingPage() {
         coverLetterText: results.coverLetter,
         documentType: "resume",
         templateId,
-        format: "pdf", // always PDF
+        format: "pdf",
       };
 
       const downloadResponse = await fetch("/api/download", {
@@ -178,7 +174,6 @@ export default function LandingPage() {
         throw new Error("Failed to download resume.");
       }
 
-      // ✅ Always handle as blob (PDF)
       const blob = await downloadResponse.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -210,7 +205,7 @@ export default function LandingPage() {
         coverLetterText: results.coverLetter,
         documentType: "coverLetter",
         templateId,
-        format: "pdf", // always PDF
+        format: "pdf",
       };
 
       const downloadResponse = await fetch("/api/download", {
@@ -225,7 +220,6 @@ export default function LandingPage() {
         throw new Error("Failed to download cover letter.");
       }
 
-      // ✅ Always handle as blob (PDF)
       const blob = await downloadResponse.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -245,12 +239,7 @@ export default function LandingPage() {
     }
   };
 
-  // ------------------------------------------
-  // End of updated download handlers
-  // ------------------------------------------
-
-  const isButtonDisabled =
-    isLoading || (!resumeFile && !resumeText) || !jobDescriptionText;
+  const isButtonDisabled = isLoading || !jobDescriptionText;
 
   const handleSignIn = () => {
     setIsLoggedIn(true);
@@ -268,14 +257,60 @@ export default function LandingPage() {
         onSignIn={() => setIsModalOpen(true)}
         onSignOut={handleSignOut}
       />
-      <section className="bg-gray-50 py-16 px-4">
-        <div className="container mx-auto max-w-5xl space-y-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-[var(--color-text-primary)]">
-            Start Your Optimization
-          </h2>
+
+      {/* Main Form Section with Gradient Background */}
+      <section className="relative py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div>
+
+        <div className="container mx-auto max-w-6xl relative z-10">
+          {/* Header Section */}
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+              Build Your Perfect Resume
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Whether you have a resume to tailor or need to build one from
+              scratch - we'll create the perfect application for any job
+              description.
+            </p>
+          </div>
+
+          {/* Feature Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Upload className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">Upload or Paste</h3>
+              <p className="text-gray-600">
+                PDF, DOCX, or just paste your resume text
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 text-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Target className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">Job Description</h3>
+              <p className="text-gray-600">
+                Paste any job description to target
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-6 h-6 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">Instant Results</h3>
+              <p className="text-gray-600">
+                Get tailored resume and cover letter
+              </p>
+            </div>
+          </div>
+
           {!results ? (
             <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <UploadSection
                   resumeFile={resumeFile}
                   setResumeFile={handleSetResumeFile}
@@ -291,26 +326,43 @@ export default function LandingPage() {
                   setJobDescriptionText={setJobDescriptionText}
                 />
               </div>
-              <div className="flex justify-center flex-col items-center gap-4">
+
+              <div className="text-center">
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto px-12 py-6 text-lg bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white shadow-xl"
+                  className="px-16 py-6 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105"
                   disabled={isButtonDisabled}
                 >
                   {isLoading ? (
                     <span className="flex items-center gap-2">
                       <Loader />
-                      Generating...
+                      Generating Your Resume...
                     </span>
                   ) : (
-                    "Generate Tailored Resume"
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5" />
+                      Create Perfect Application
+                    </span>
                   )}
                 </Button>
-                {error && <p className="text-red-500 mt-2">{error}</p>}
-                <p className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+
+                {error && (
+                  <p className="text-red-500 mt-4 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+                    {error}
+                  </p>
+                )}
+
+                <p className="flex items-center justify-center gap-2 text-sm text-gray-500 mt-4">
                   <Lock size={16} />
-                  Your files are private.
+                  Your files are private and secure
                 </p>
+
+                {!resumeText && !resumeFile && (
+                  <p className="text-sm text-blue-600 mt-3 bg-blue-50 p-2 rounded-lg">
+                    💡 Don't have a resume? No problem! We'll build one for you
+                    based on the job description.
+                  </p>
+                )}
               </div>
             </form>
           ) : (
@@ -323,9 +375,10 @@ export default function LandingPage() {
           )}
         </div>
       </section>
+
       <FeaturesSection />
       <PricingSection onSignIn={() => setIsModalOpen(true)} />
-      <EnterpriseSection />
+      <TestimonialsSection />
       <SignInModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
