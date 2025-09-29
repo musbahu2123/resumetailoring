@@ -1,6 +1,6 @@
-// components/UploadSection.tsx (Build tab first, keeping your design)
+// components/UploadSection.tsx - Updated with external tab control
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -20,6 +20,8 @@ interface UploadSectionProps {
   resumeText: string;
   setResumeText: (text: string) => void;
   onPdfTextExtracted: (text: string) => void;
+  // Add this for external tab control
+  forceActiveTab?: "build" | "docx" | "pdf" | "paste";
 }
 
 export default function UploadSection({
@@ -28,11 +30,20 @@ export default function UploadSection({
   resumeText,
   setResumeText,
   onPdfTextExtracted,
+  forceActiveTab,
 }: UploadSectionProps) {
   const [activeTab, setActiveTab] = useState<
     "build" | "docx" | "pdf" | "paste"
-  >("build"); // Build is now first
+  >("build");
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+
+  // If forceActiveTab is provided, use it and clear after use
+  useEffect(() => {
+    if (forceActiveTab) {
+      setActiveTab(forceActiveTab);
+      // Don't clear forceActiveTab here - let parent component manage it
+    }
+  }, [forceActiveTab]);
 
   const handleDocxUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

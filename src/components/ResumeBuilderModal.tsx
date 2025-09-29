@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { X } from "lucide-react";
+// import { X } from "lucide-react";
 import PersonalInfoStep from "./ResumeBuilder/PersonalInfoStep";
 import SummaryStep from "./ResumeBuilder/SummaryStep";
 import ExperienceStep from "./ResumeBuilder/ExperienceStep";
@@ -227,12 +227,12 @@ export default function ResumeBuilderModal({
             <DialogTitle className="text-2xl font-bold text-gray-800">
               Build Your Resume
             </DialogTitle>
-            <button
+            {/* <button
               onClick={onClose}
               className="rounded-full p-2 hover:bg-gray-100 transition-colors"
             >
               <X size={20} />
-            </button>
+            </button> */}
           </div>
           <DialogDescription className="text-gray-600">
             Step {currentStep} of {totalSteps}: {getStepTitle(currentStep)}

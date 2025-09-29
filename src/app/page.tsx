@@ -1,6 +1,7 @@
+// In your landing page component - Complete updated version with double setTimeout for robustness
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Lock, Upload, FileText, Sparkles, Target } from "lucide-react";
@@ -75,6 +76,90 @@ export default function LandingPage() {
     atsScore: number;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // States for retailor functionality
+  const [retailorSuccess, setRetailorSuccess] = useState(false);
+  const [forceActiveTab, setForceActiveTab] = useState<
+    "build" | "docx" | "pdf" | "paste"
+  >();
+
+  // --- Start Retailor Fix ---
+
+  // ✅ Alternative: Even More Robust Retailor Detection
+  useEffect(() => {
+    const checkRetailorParams = () => {
+      if (typeof window === "undefined") return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const retailor = urlParams.get("retailor");
+      const resumeTextParam = urlParams.get("resume");
+      const source = urlParams.get("source");
+      const encoding = urlParams.get("encoding");
+
+      if (retailor && resumeTextParam && source === "documents") {
+        // Use double setTimeout to ensure React lifecycle is complete
+        setTimeout(() => {
+          setTimeout(() => {
+            try {
+              let decodedResume;
+
+              if (encoding === "base64") {
+                // Safe Base64 decoding for UTF-8
+                decodedResume = decodeURIComponent(
+                  atob(resumeTextParam)
+                    .split("")
+                    .map(
+                      (c) =>
+                        "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+                    )
+                    .join("")
+                );
+              } else {
+                // Fallback for raw URI encoding
+                try {
+                  decodedResume = decodeURIComponent(resumeTextParam);
+                } catch (uriError) {
+                  console.warn("URI decode failed, using raw text");
+                  decodedResume = resumeTextParam;
+                }
+              }
+
+              setResumeText(decodedResume);
+              setForceActiveTab("paste");
+              setRetailorSuccess(true);
+
+              // Clear URL after everything is settled (1000ms delay for user to see success message)
+              setTimeout(() => {
+                window.history.replaceState({}, "", window.location.pathname);
+              }, 1000);
+            } catch (error) {
+              console.error("Error processing retailor resume:", error);
+              setResumeText(
+                "Error loading resume. Please paste your resume manually."
+              );
+              setForceActiveTab("paste");
+            }
+          }, 50); // 50ms ensures a slight delay after the first microtask
+        }, 0); // Runs as a microtask after initial render
+      }
+    };
+
+    checkRetailorParams();
+  }, []);
+
+  // ✅ Debug Helper
+  useEffect(() => {
+    // Only log if one of the retailor states is set
+    if (forceActiveTab || retailorSuccess || resumeText) {
+      console.log("Retailor State Debug:", {
+        resumeText: resumeText ? resumeText.substring(0, 50) + "..." : "N/A",
+        forceActiveTab,
+        retailorSuccess,
+      });
+    }
+  }, [resumeText, forceActiveTab, retailorSuccess]);
+
+  // --- End Retailor Fix ---
 
   const handleSetResumeFile = (file: File | null) => {
     setResumeFile(file);
@@ -258,6 +343,33 @@ export default function LandingPage() {
         onSignOut={handleSignOut}
       />
 
+      {/* Retailor Success Message */}
+      {retailorSuccess && (
+        <div className="fixed top-4 right-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50 max-w-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-4 h-4 text-green-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div>
+              <p className="font-medium">Resume Loaded Successfully!</p>
+              <p className="text-sm text-green-600">
+                Switched to Paste Text tab automatically
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Form Section with Gradient Background */}
       <section className="relative py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div>
@@ -320,6 +432,7 @@ export default function LandingPage() {
                     setResumeText(text);
                     setExtractedPdfText(text);
                   }}
+                  forceActiveTab={forceActiveTab}
                 />
                 <JobDescriptionSection
                   jobDescriptionText={jobDescriptionText}

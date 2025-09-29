@@ -50,23 +50,17 @@ export default function Navbar() {
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-6">
             <Link
-              href="/features"
+              href="/settings"
               className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
             >
-              Features
+              settings
             </Link>
-            <Link
-              href="/templates"
-              className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
-            >
-              Templates
-            </Link>
-            <Link
+            {/* <Link
               href="/pricing"
               className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
             >
               Pricing
-            </Link>
+            </Link> */}
             {session && (
               <Link
                 href="/documents"

@@ -1,7 +1,7 @@
+// app/documents/page.tsx (Updated)
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -17,6 +17,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import DocumentViewModal from "@/components/DocumentViewModal";
+import CircularProgress from "@/components/CircularProgress";
 
 interface Job {
   _id: string;
@@ -29,35 +31,6 @@ interface Job {
   templateId: string;
 }
 
-interface Template {
-  id: string;
-  name: string;
-  image: string;
-}
-
-const TEMPLATES: Template[] = [
-  {
-    id: "classic",
-    name: "Classic",
-    image: "/images/templates/classic.jpg",
-  },
-  {
-    id: "modern",
-    name: "Modern",
-    image: "/images/templates/mordern.jpg",
-  },
-  {
-    id: "creative",
-    name: "Creative",
-    image: "/images/templates/creative.jpg",
-  },
-  {
-    id: "minimalist",
-    name: "Minimalist",
-    image: "/images/templates/minimalist.jpg",
-  },
-];
-
 export default function DocumentsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
@@ -67,6 +40,7 @@ export default function DocumentsPage() {
   const [sortBy, setSortBy] = useState<"date" | "score" | "title">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const fetchJobs = async () => {
@@ -129,11 +103,9 @@ export default function DocumentsPage() {
     setFilteredJobs(filtered);
   }, [jobs, searchTerm, sortBy, sortOrder]);
 
-  const handleDownload = async (
-    type: "resume" | "coverLetter",
-    job: Job,
-    templateId: string
-  ) => {
+  const handleDownloadResume = async (templateId: string) => {
+    if (!selectedJob) return;
+
     setIsDownloading(true);
     try {
       const response = await fetch("/api/download", {
@@ -142,16 +114,16 @@ export default function DocumentsPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          tailoredResumeText: job.tailoredResumeText,
-          coverLetterText: job.coverLetterText,
-          documentType: type,
+          tailoredResumeText: selectedJob.tailoredResumeText,
+          coverLetterText: selectedJob.coverLetterText,
+          documentType: "resume",
           templateId: templateId,
           format: "pdf",
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to download file");
+        throw new Error("Failed to download resume");
       }
 
       const blob = await response.blob();
@@ -160,9 +132,9 @@ export default function DocumentsPage() {
       link.href = url;
       link.setAttribute(
         "download",
-        `${(job.jobTitle || "document")
+        `${(selectedJob.jobTitle || "resume")
           .replace(/\s+/g, "-")
-          .toLowerCase()}-${type}-${templateId}.pdf`
+          .toLowerCase()}-${templateId}.pdf`
       );
       document.body.appendChild(link);
       link.click();
@@ -170,7 +142,52 @@ export default function DocumentsPage() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Download Error:", err);
-      setError("Failed to download document");
+      setError("Failed to download resume");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleDownloadCoverLetter = async () => {
+    if (!selectedJob) return;
+
+    setIsDownloading(true);
+    try {
+      const response = await fetch("/api/download", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tailoredResumeText: selectedJob.tailoredResumeText,
+          coverLetterText: selectedJob.coverLetterText,
+          documentType: "coverLetter",
+          templateId: "modern", // Default template for cover letters
+          format: "pdf",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download cover letter");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `${(selectedJob.jobTitle || "cover-letter")
+          .replace(/\s+/g, "-")
+          .toLowerCase()}-cover-letter.pdf`
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download Error:", err);
+      setError("Failed to download cover letter");
     } finally {
       setIsDownloading(false);
     }
@@ -195,6 +212,11 @@ export default function DocumentsPage() {
       console.error("Deletion Error:", err);
       setError("Failed to delete document");
     }
+  };
+
+  const handleViewDocument = (job: Job) => {
+    setSelectedJob(job);
+    setIsViewModalOpen(true);
   };
 
   const getScoreColor = (score: number) => {
@@ -336,14 +358,12 @@ export default function DocumentsPage() {
                       </div>
                     </div>
 
-                    {/* ATS Score */}
-                    <div
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${getScoreColor(
-                        job.atsScore || 0
-                      )}`}
-                    >
-                      {job.atsScore || 0}%
-                    </div>
+                    {/* ATS Score with CircularProgress */}
+                    <CircularProgress
+                      percentage={job.atsScore || 0}
+                      size={40}
+                      strokeWidth={4}
+                    />
                   </div>
 
                   {/* Date */}
@@ -359,12 +379,7 @@ export default function DocumentsPage() {
                         variant="outline"
                         size="sm"
                         className="w-full"
-                        onClick={() => {
-                          setSelectedJob(job);
-                          document
-                            .getElementById("view-resume-modal")
-                            ?.showModal();
-                        }}
+                        onClick={() => handleViewDocument(job)}
                       >
                         <Eye size={14} className="mr-2" />
                         View
@@ -375,13 +390,12 @@ export default function DocumentsPage() {
                         className="w-full"
                         onClick={() => {
                           setSelectedJob(job);
-                          document
-                            .getElementById("download-modal")
-                            ?.showModal();
+                          handleDownloadCoverLetter();
                         }}
+                        disabled={isDownloading}
                       >
                         <Download size={14} className="mr-2" />
-                        Download
+                        {isDownloading ? "..." : "Download"}
                       </Button>
                     </div>
 
@@ -402,109 +416,14 @@ export default function DocumentsPage() {
         )}
       </div>
 
-      {/* View Modal */}
-      <dialog id="view-resume-modal" className="modal">
-        <div className="modal-box max-w-4xl max-h-[80vh]">
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
-          <h3 className="font-bold text-lg mb-4">
-            {selectedJob?.jobTitle || "Untitled Job"} - Resume
-          </h3>
-          <div className="prose max-w-none overflow-y-auto">
-            <pre className="whitespace-pre-wrap text-sm">
-              {selectedJob?.tailoredResumeText}
-            </pre>
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-
-      {/* Download Modal */}
-      <dialog id="download-modal" className="modal">
-        <div className="modal-box max-w-2xl">
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
-          <h3 className="font-bold text-lg mb-6">Download Document</h3>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <Button
-              variant="outline"
-              className="h-16 flex-col gap-2"
-              onClick={() =>
-                document.getElementById("template-modal")?.showModal()
-              }
-            >
-              <FileText size={20} />
-              <span>Resume</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="h-16 flex-col gap-2"
-              onClick={() =>
-                selectedJob &&
-                handleDownload(
-                  "coverLetter",
-                  selectedJob,
-                  selectedJob.templateId || "modern"
-                )
-              }
-              disabled={isDownloading}
-            >
-              <Download size={20} />
-              <span>Cover Letter</span>
-            </Button>
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-
-      {/* Template Selection Modal */}
-      <dialog id="template-modal" className="modal">
-        <div className="modal-box max-w-4xl">
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
-          <h3 className="font-bold text-lg mb-6">Choose Template</h3>
-
-          <div className="grid grid-cols-2 gap-4">
-            {TEMPLATES.map((template) => (
-              <div
-                key={template.id}
-                className="border rounded-lg p-4 hover:border-blue-400 cursor-pointer transition-colors"
-                onClick={() =>
-                  selectedJob &&
-                  handleDownload("resume", selectedJob, template.id)
-                }
-              >
-                <div className="relative w-full h-40 mb-2">
-                  <Image
-                    src={template.image}
-                    alt={template.name}
-                    fill
-                    className="object-cover rounded"
-                  />
-                </div>
-                <p className="text-center font-medium">{template.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
+      {/* Document View Modal */}
+      <DocumentViewModal
+        job={selectedJob}
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        onDownloadResume={handleDownloadResume}
+        onDownloadCoverLetter={handleDownloadCoverLetter}
+      />
     </div>
   );
 }
