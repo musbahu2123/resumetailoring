@@ -35,7 +35,7 @@ export default function HeroSection({
             <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200 mb-6">
               <Sparkles className="w-4 h-4 text-yellow-500" />
               <span className="text-sm font-medium text-gray-700">
-                Trusted by 50,000+ job seekers worldwide
+                Trusted by 1,000+ job seekers worldwide
               </span>
             </div>
 

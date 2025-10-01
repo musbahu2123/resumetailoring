@@ -361,8 +361,8 @@ export default function DocumentsPage() {
                     {/* ATS Score with CircularProgress */}
                     <CircularProgress
                       percentage={job.atsScore || 0}
-                      size={40}
-                      strokeWidth={4}
+                      size={50}
+                      strokeWidth={3.5}
                     />
                   </div>
 

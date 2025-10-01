@@ -1,7 +1,15 @@
+"use client";
 import Link from "next/link";
-import { Sparkles, Mail, Twitter, Github } from "lucide-react";
+import { Sparkles, Mail, Github } from "lucide-react";
 
 export default function Footer() {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <footer className="w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white">
       <div className="container mx-auto py-12 px-6">
@@ -14,30 +22,25 @@ export default function Footer() {
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                ResumeTailor
+                ResumeTailorApp
               </span>
             </Link>
             <p className="text-gray-300 text-sm leading-relaxed max-w-xs">
-              AI-powered resume building and tailoring that helps you land your
-              dream job. Perfectly optimized for ATS systems and recruiters.
+              AI-powered resume and cover letter tailoring that helps you land
+              your dream job. Perfectly optimized for ATS systems.
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
-                className="text-gray-400 hover:text-blue-400 transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter size={20} />
-              </a>
-              <a
-                href="#"
+                href="https://github.com/your-repo"
                 className="text-gray-400 hover:text-purple-400 transition-colors"
                 aria-label="GitHub"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <Github size={20} />
               </a>
               <a
-                href="#"
+                href="mailto:resumetailorapp@gmail.com"
                 className="text-gray-400 hover:text-red-400 transition-colors"
                 aria-label="Email"
               >
@@ -46,95 +49,89 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Product Links */}
+          {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-gray-100">Product</h3>
+            <h3 className="font-semibold text-gray-100">Quick Links</h3>
             <div className="space-y-2">
-              <Link
-                href="/features"
-                className="block text-gray-300 hover:text-white transition-colors text-sm"
+              <button
+                onClick={() => scrollToSection("builder")}
+                className="block text-gray-300 hover:text-white transition-colors text-sm text-left w-full"
+              >
+                Resume Builder
+              </button>
+              <button
+                onClick={() => scrollToSection("features")}
+                className="block text-gray-300 hover:text-white transition-colors text-sm text-left w-full"
               >
                 Features
-              </Link>
+              </button>
+              <button
+                onClick={() => scrollToSection("testimonials")}
+                className="block text-gray-300 hover:text-white transition-colors text-sm text-left w-full"
+              >
+                Testimonials
+              </button>
               <Link
                 href="/templates"
                 className="block text-gray-300 hover:text-white transition-colors text-sm"
               >
-                Templates
-              </Link>
-              <Link
-                href="/pricing"
-                className="block text-gray-300 hover:text-white transition-colors text-sm"
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/api"
-                className="block text-gray-300 hover:text-white transition-colors text-sm"
-              >
-                API
+                Free Templates
               </Link>
             </div>
           </div>
 
-          {/* Resources Links */}
+          {/* Support Links */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-gray-100">Resources</h3>
+            <h3 className="font-semibold text-gray-100">Support</h3>
             <div className="space-y-2">
               <Link
-                href="/blog"
+                href="/support"
                 className="block text-gray-300 hover:text-white transition-colors text-sm"
               >
-                Blog
+                Contact Support
               </Link>
               <Link
-                href="/docs"
+                href="/faq"
                 className="block text-gray-300 hover:text-white transition-colors text-sm"
               >
-                Documentation
+                FAQ
               </Link>
               <Link
                 href="/support"
                 className="block text-gray-300 hover:text-white transition-colors text-sm"
               >
-                Support
+                Report Bug
               </Link>
               <Link
-                href="/community"
+                href="/support"
                 className="block text-gray-300 hover:text-white transition-colors text-sm"
               >
-                Community
+                Feature Request
               </Link>
             </div>
           </div>
 
-          {/* Company Links */}
+          {/* Legal Links */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-gray-100">Company</h3>
+            <h3 className="font-semibold text-gray-100">Legal</h3>
             <div className="space-y-2">
               <Link
-                href="/about"
+                href="/privacy"
                 className="block text-gray-300 hover:text-white transition-colors text-sm"
               >
-                About
+                Privacy Policy
               </Link>
               <Link
-                href="/careers"
+                href="/terms"
                 className="block text-gray-300 hover:text-white transition-colors text-sm"
               >
-                Careers
+                Terms of Service
               </Link>
               <Link
-                href="/contact"
+                href="/cookies"
                 className="block text-gray-300 hover:text-white transition-colors text-sm"
               >
-                Contact
-              </Link>
-              <Link
-                href="/press"
-                className="block text-gray-300 hover:text-white transition-colors text-sm"
-              >
-                Press
+                Cookie Policy
               </Link>
             </div>
           </div>
@@ -147,36 +144,28 @@ export default function Footer() {
               <span>&copy; 2024 ResumeTailor. All rights reserved.</span>
               <div className="flex space-x-4">
                 <Link
-                  href="/terms"
-                  className="hover:text-white transition-colors"
-                >
-                  Terms
-                </Link>
-                <Link
                   href="/privacy"
                   className="hover:text-white transition-colors"
                 >
                   Privacy
                 </Link>
                 <Link
-                  href="/cookies"
+                  href="/terms"
                   className="hover:text-white transition-colors"
                 >
-                  Cookies
+                  Terms
+                </Link>
+                <Link
+                  href="/support"
+                  className="hover:text-white transition-colors"
+                >
+                  Support
                 </Link>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/earn-credits"
-                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                💰 Earn Credits
-              </Link>
-              <div className="text-sm text-gray-400">
-                Made with ❤️ for job seekers
-              </div>
+            <div className="flex items-center space-x-4 text-sm text-gray-400">
+              <span>Made with ❤️ for job seekers</span>
             </div>
           </div>
         </div>

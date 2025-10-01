@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Check,
   LogIn,
   UserCheck,
   FileText,
@@ -20,6 +19,7 @@ import {
   Menu,
   Sparkles,
   Crown,
+  User,
 } from "lucide-react";
 import SignInModal from "@/components/SignInModal";
 
@@ -42,34 +42,34 @@ export default function Navbar() {
             </div>
           </div>
           <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            ResumeTailor
+            ResumeTailorApp
           </span>
         </Link>
 
         <div className="flex items-center space-x-4">
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link
-              href="/settings"
-              className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
-            >
-              settings
-            </Link>
-            {/* <Link
-              href="/pricing"
-              className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
-            >
-              Pricing
-            </Link> */}
-            {session && (
+          {/* Navigation Links - Only show when logged in */}
+          {session ? (
+            <div className="hidden md:flex items-center space-x-6">
+              <Link
+                href="/settings"
+                className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+              >
+                Settings
+              </Link>
+              <Link
+                href="/templates"
+                className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+              >
+                Templates
+              </Link>
               <Link
                 href="/documents"
                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
               >
                 Documents
               </Link>
-            )}
-          </div>
+            </div>
+          ) : null}
 
           {session ? (
             <div className="flex items-center space-x-4">

@@ -17,6 +17,7 @@ import UploadSection from "@/components/UploadSection";
 import JobDescriptionSection from "@/components/JobDescriptionSection";
 import ResultsSection from "@/components/ResultsSection";
 import FeaturesSection from "@/components/FeaturesSection";
+import ExpertAdviceSection from "@/components/ExpertAdviceSection";
 import PricingSection from "@/components/PricingSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import Loader from "@/components/Loader";
@@ -371,7 +372,10 @@ export default function LandingPage() {
       )}
 
       {/* Main Form Section with Gradient Background */}
-      <section className="relative py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <section
+        id="builder"
+        className="relative py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50"
+      >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div>
 
         <div className="container mx-auto max-w-6xl relative z-10">
@@ -489,9 +493,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <FeaturesSection />
-      <PricingSection onSignIn={() => setIsModalOpen(true)} />
-      <TestimonialsSection />
+      {/* Features Section */}
+      <section id="features">
+        <FeaturesSection />
+      </section>
+      <section id="expertadvice">
+        <ExpertAdviceSection />
+      </section>
+
+      {/* <PricingSection onSignIn={() => setIsModalOpen(true)} /> */}
+
+      {/* Testimonials Section */}
+      <section id="testimonials">
+        <TestimonialsSection />
+      </section>
+
       <SignInModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

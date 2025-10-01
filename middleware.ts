@@ -2,7 +2,7 @@
 import { auth } from "./auth";
 
 export const config = {
-  matcher: ["/documents", "/profile"],
+  matcher: ["/documents", "/settings"],
 };
 
 export default auth;
