@@ -80,7 +80,7 @@ Please respond within 24 hours.
       replyTo: email,
     });
 
-    console.log('✅ Support email sent via Gmail');
+    // console.log('✅ Support email sent via Gmail');
 
     return NextResponse.json({ 
       success: true,
@@ -91,13 +91,13 @@ Please respond within 24 hours.
     console.error('Support API error:', error);
     
     // Fallback logging
-    console.log('📧 SUPPORT REQUEST (Fallback Log):', {
-      type: body?.type,
-      from: `${body?.name} <${body?.email}>`,
-      subject: body?.subject,
-      description: body?.description,
-      timestamp: new Date().toISOString()
-    });
+    // console.log('📧 SUPPORT REQUEST (Fallback Log):', {
+    //   type: body?.type,
+    //   from: `${body?.name} <${body?.email}>`,
+    //   subject: body?.subject,
+    //   description: body?.description,
+    //   timestamp: new Date().toISOString()
+    // });
 
     return NextResponse.json({ 
       success: true,

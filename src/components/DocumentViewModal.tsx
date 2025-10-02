@@ -294,9 +294,7 @@ export default function DocumentViewModal({
                 </Button>
                 <Button
                   onClick={handleDownloadResume}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
                   size={isMobile ? "sm" : "default"}
-                  // Apply justify-center only if needed, or remove extra className assignment
                   className={
                     isMobile
                       ? "justify-center bg-blue-600 hover:bg-blue-700 text-white"

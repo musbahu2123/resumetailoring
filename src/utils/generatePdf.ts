@@ -1,27 +1,33 @@
-import { 
-  generateClassicPdf, 
-  generateModernPdf, 
-  generateCreativePdf, 
-  generateMinimalistPdf 
-} from '@/lib/templates';
+import jsPDF from "jspdf";
+import {
+  generateClassicPdf,
+  generateModernPdf,
+  generateCreativePdf,
+  generateMinimalistPdf,
+} from "@/lib/templates";
 
-export const generatePdf = (title: string, content: string, filename: string, templateId: string = 'classic'): void => {
-  const doc = new jsPDF();
-  
+export const generatePdf = (
+  title: string,
+  content: string,
+  filename: string,
+  templateId: string = "classic"
+): void => {
+  let doc: jsPDF;
+
   switch (templateId) {
-    case 'modern':
-      generateModernPdf(doc, title, content);
+    case "modern":
+      doc = generateModernPdf(title, content);
       break;
-    case 'creative':
-      generateCreativePdf(doc, title, content);
+    case "creative":
+      doc = generateCreativePdf(title, content);
       break;
-    case 'minimalist':
-      generateMinimalistPdf(doc, title, content);
+    case "minimalist":
+      doc = generateMinimalistPdf(title, content);
       break;
-    case 'classic':
+    case "classic":
     default:
-      generateClassicPdf(doc, title, content);
+      doc = generateClassicPdf(title, content);
   }
-  
+
   doc.save(filename);
 };

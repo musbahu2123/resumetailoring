@@ -16,6 +16,8 @@ interface TemplateGridProps {
   selectedTemplateId: string;
   onTemplateSelect: (templateId: string) => void;
   isMobile?: boolean;
+  // Add the missing templates property
+  templates?: Template[];
 }
 
 const TEMPLATES: Template[] = [

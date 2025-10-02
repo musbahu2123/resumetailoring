@@ -42,7 +42,7 @@ export default function SettingsPage() {
     setError(null);
 
     try {
-      console.log("🔍 Settings: Fetching user data...");
+      // console.log("🔍 Settings: Fetching user data...");
       const response = await fetch("/api/profile");
 
       if (!response.ok) {
@@ -57,10 +57,10 @@ export default function SettingsPage() {
       }
 
       const data = await response.json();
-      console.log("✅ Settings: User data received:", data);
+      // console.log("✅ Settings: User data received:", data);
       setUserData(data);
     } catch (error) {
-      console.error("❌ Settings: Error fetching user data:", error);
+      // console.error("❌ Settings: Error fetching user data:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to fetch user data";
       setError(errorMessage);
