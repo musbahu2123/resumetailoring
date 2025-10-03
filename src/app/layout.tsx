@@ -16,8 +16,54 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Resume & Job Tailor",
-  description: "Tailor your resume and cover letter with AI.",
+  title: "Resume Tailor App: AI-Powered Resume & Cover Letter Builder for ATS",
+  description:
+    "Land your dream job. Instantly tailor your resume & cover letter to any job description using AI. Get past Applicant Tracking Systems (ATS) and impress recruiters in seconds. Upload, paste, or build from scratch.",
+  keywords: [
+    "AI Resume Builder",
+    "Resume Tailor",
+    "ATS Resume",
+    "Cover Letter Generator",
+    "Job Application AI",
+    "Tailor Resume to Job Description",
+    "Resume Optimization",
+    "CV Builder",
+    "Recruiter-Friendly Resume",
+  ],
+  authors: [{ name: "Resume Tailor App" }],
+  creator: "Resume Tailor App",
+  publisher: "Resume Tailor App",
+  robots: "index, follow",
+  openGraph: {
+    title:
+      "Resume Tailor App: AI-Powered Resume & Cover Letter Builder for ATS",
+    description:
+      "Land your dream job. Instantly tailor your resume & cover letter to any job description using AI. Get past ATS and impress recruiters.",
+    url: "https://www.resumetailorapp.com",
+    siteName: "Resume Tailor App",
+    images: [
+      {
+        url: "/og-image.png", // <<< YOU NEED TO CREATE THIS
+        width: 1200,
+        height: 630,
+        alt: "Resume Tailor App - Create the perfect resume in minutes.",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Resume Tailor App: AI-Powered Resume & Cover Letter Builder",
+    description:
+      "Tailor your resume & cover letter to any job in seconds. Beat the ATS and get more interviews.",
+    creator: "@musbahdev33", // <<< ADD IF YOU HAVE ONE
+    images: ["/og-image.png"],
+  },
+  verification: {
+    // google: "your-google-search-console-verification-code", // <<< ADD LATER
+    // yandex: "your-yandex-verification-code", // <<< OPTIONAL
+  },
 };
 
 export default function RootLayout({

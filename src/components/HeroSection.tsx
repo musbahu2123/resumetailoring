@@ -39,28 +39,32 @@ export default function HeroSection({
               </span>
             </div>
 
+            {/* OPTIMIZED H1 SECTION */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Build & Tailor
+                AI Resume Builder
               </span>
               <br />
-              <span className="text-gray-800">The Perfect Resume</span>
+              <span className="text-gray-800">Tailored to Any Job</span>
             </h1>
 
+            {/* OPTIMIZED SUBHEADLINE */}
             <p className="mt-6 text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl">
-              Whether you're starting from scratch or optimizing an existing
-              resume, we create ATS-friendly, recruiter-approved applications
-              tailored to any job description.
+              <strong>Beat the ATS bots and impress recruiters.</strong> Upload
+              your resume, paste any job description, and our AI instantly
+              generates a tailored resume
+              <strong> and cover letter</strong> optimized for Applicant
+              Tracking Systems.
             </p>
 
-            {/* Feature Points */}
+            {/* Feature Points - OPTIMIZED */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                   <FileText className="w-4 h-4 text-green-600" />
                 </div>
                 <span className="text-sm font-medium text-gray-700">
-                  Build from scratch or upload
+                  AI Cover Letter Generator
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -76,7 +80,7 @@ export default function HeroSection({
                   <Building2 className="w-4 h-4 text-purple-600" />
                 </div>
                 <span className="text-sm font-medium text-gray-700">
-                  Recruiter-friendly formatting
+                  Recruiter-Approved Templates
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -84,7 +88,7 @@ export default function HeroSection({
                   <Zap className="w-4 h-4 text-orange-600" />
                 </div>
                 <span className="text-sm font-medium text-gray-700">
-                  Instant results in 30 seconds
+                  Tailor in 30 Seconds
                 </span>
               </div>
             </div>
@@ -103,7 +107,7 @@ export default function HeroSection({
                   className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transition-all duration-200 group"
                   onClick={onSignIn}
                 >
-                  Start Building Now
+                  Tailor My Resume Now
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               )}
@@ -115,15 +119,15 @@ export default function HeroSection({
               </Button>
             </div>
 
-            {/* Trust Badges */}
+            {/* OPTIMIZED Trust Badges */}
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6 text-sm text-gray-500">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>No resume? We'll build it for you</span>
+                <span>Includes AI Cover Letter Generator</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>Free forever plan available</span>
+                <span>Free forever - no credit card required</span>
               </div>
             </div>
           </div>
@@ -139,7 +143,7 @@ export default function HeroSection({
                   <div className="aspect-[3/4] relative rounded-lg overflow-hidden">
                     <Image
                       src="/images/templates/classic.jpg"
-                      alt="Classic Resume Template"
+                      alt="ATS-Friendly Classic Resume Template - Professional & Timeless"
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 768px) 50vw, 25vw"
@@ -163,7 +167,7 @@ export default function HeroSection({
                   <div className="aspect-[3/4] relative rounded-lg overflow-hidden">
                     <Image
                       src="/images/templates/creative.jpg"
-                      alt="Creative Resume Template"
+                      alt="Modern Creative Resume Template - ATS Optimized"
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 768px) 50vw, 25vw"
@@ -191,7 +195,7 @@ export default function HeroSection({
             <div className="absolute -bottom-8 -right-8 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-xl border border-gray-200">
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-800">98%</div>
-                <div className="text-xs text-gray-600">Success Rate</div>
+                <div className="text-xs text-gray-600">ATS Success Rate</div>
               </div>
             </div>
           </div>
