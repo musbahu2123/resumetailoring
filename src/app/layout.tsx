@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     title: "Resume Tailor App: AI-Powered Resume & Cover Letter Builder",
     description:
       "Tailor your resume & cover letter to any job in seconds. Beat the ATS and get more interviews.",
-    creator: "@musbahdev33", // <<< ADD IF YOU HAVE ONE
+    creator: "@itsmusbahdev", // <<< ADD IF YOU HAVE ONE
     images: ["/og-image.png"],
   },
   verification: {
