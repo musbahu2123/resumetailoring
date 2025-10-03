@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "Resume Tailor App",
     images: [
       {
-        url: "/og-image.png", // <<< YOU NEED TO CREATE THIS
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Resume Tailor App - Create the perfect resume in minutes.",
@@ -57,12 +57,12 @@ export const metadata: Metadata = {
     title: "Resume Tailor App: AI-Powered Resume & Cover Letter Builder",
     description:
       "Tailor your resume & cover letter to any job in seconds. Beat the ATS and get more interviews.",
-    creator: "@itsmusbahdev", // <<< ADD IF YOU HAVE ONE
+    creator: "@itsmusbahdev",
     images: ["/og-image.png"],
   },
-  verification: {
-    // google: "your-google-search-console-verification-code", // <<< ADD LATER
-    // yandex: "your-yandex-verification-code", // <<< OPTIONAL
+  // ADD THE VERIFICATION HERE
+  other: {
+    "google-site-verification": "ui4OZp4LsNsMYVfVniuAafxkX9mxh2vvMSvoEemFxgI", // ← Replace with actual code
   },
 };
 
@@ -73,6 +73,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* This will automatically include the google-site-verification meta tag */}
+      </head>
       <body
         className={`${geistSans.className} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
