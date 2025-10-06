@@ -1,3 +1,4 @@
+// AdminDashboard component (app/admin/page.tsx)
 "use client";
 
 import { useSession } from "next-auth/react";
@@ -20,7 +21,7 @@ import {
   XCircle,
   BarChart3,
   Clock,
-  Shield, // Added Shield icon for admin/logout
+  Shield,
 } from "lucide-react";
 import AdminLogin from "@/components/AdminLogin"; // Imported AdminLogin component
 
@@ -36,7 +37,6 @@ interface Testimonial {
   createdAt: string;
 }
 
-// NEW INTERFACE for Support Requests
 interface SupportRequest {
   _id: string;
   name: string;
@@ -49,6 +49,21 @@ interface SupportRequest {
   createdAt: string;
 }
 
+// NEW INTERFACE for Blog Post
+interface BlogPost {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  image: string;
+  category: string;
+  readTime: string;
+  featured: boolean;
+  status: "draft" | "published";
+  publishedAt: string;
+  createdAt: string;
+}
+
 interface Stats {
   totalUsers: number;
   totalResumes: number;
@@ -58,10 +73,12 @@ interface Stats {
 }
 
 export default function AdminDashboard() {
-  const { data: session } = useSession(); // Kept useSession, but logic now relies on local auth state
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // New state for authentication
+  const { data: session } = useSession();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([]); // NEW STATE
+  const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([]);
+  // NEW STATE: Blog Posts
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -99,19 +116,22 @@ export default function AdminDashboard() {
       // Clear data and ensure loading is false if logging out or not authenticated
       setStats(null);
       setTestimonials([]);
-      setSupportRequests([]); // Clear support requests on logout
+      setSupportRequests([]);
+      setBlogPosts([]); // Clear blog posts on logout
       setIsLoading(false);
     }
   }, [isAuthenticated]);
 
   const fetchAdminData = async () => {
     try {
-      // Fetch data for testimonials, stats, and support requests in parallel
-      const [testimonialsRes, statsRes, supportRes] = await Promise.all([
-        fetch("/api/admin/testimonials"),
-        fetch("/api/admin/stats"),
-        fetch("/api/admin/support"), // NEW FETCH
-      ]);
+      // Updated to fetch blog posts in parallel
+      const [testimonialsRes, statsRes, supportRes, blogRes] =
+        await Promise.all([
+          fetch("/api/admin/testimonials"),
+          fetch("/api/admin/stats"),
+          fetch("/api/admin/support"),
+          fetch("/api/admin/blog"), // NEW: Fetch blog posts
+        ]);
 
       if (testimonialsRes.ok) {
         const testimonialsData = await testimonialsRes.json();
@@ -123,10 +143,15 @@ export default function AdminDashboard() {
         setStats(statsData);
       }
 
-      // NEW: Handle support requests response
       if (supportRes.ok) {
         const supportData = await supportRes.json();
         setSupportRequests(supportData);
+      }
+
+      // NEW: Handle blog posts response
+      if (blogRes.ok) {
+        const blogData = await blogRes.json();
+        setBlogPosts(blogData);
       }
     } catch (error) {
       console.error("Error fetching admin data:", error);
@@ -163,7 +188,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // NEW: Handler for updating support request status
   const handleUpdateSupport = async (
     requestId: string,
     status: "in-progress" | "resolved"
@@ -192,6 +216,25 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error("Error updating support request:", error);
+    }
+  };
+
+  // NEW: Delete blog post function
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+      const response = await fetch(`/api/admin/blog/${postId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setBlogPosts((prev) => prev.filter((post) => post._id !== postId));
+      } else {
+        console.error("Failed to delete post");
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
     }
   };
 
@@ -392,11 +435,10 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Support Requests Section (NEW) */}
+        {/* Support Requests Section */}
         <Card className="bg-white shadow-lg border border-gray-100 mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {/* Reusing MessageCircle since it's about communication/requests */}
               <MessageCircle className="w-5 h-5 text-blue-600" />
               Recent Support Requests
             </CardTitle>
@@ -514,6 +556,138 @@ export default function AdminDashboard() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Blog Management Section (NEW) */}
+        <Card className="bg-white shadow-lg border border-gray-100 mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-green-600" />
+              Blog Management
+            </CardTitle>
+            <CardDescription>
+              Create, edit, and manage blog posts
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-center mb-6">
+              <Button
+                onClick={() => window.open("/admin/blog/new", "_blank")}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Create New Post
+              </Button>
+              <Button variant="outline" onClick={fetchAdminData}>
+                Refresh
+              </Button>
+            </div>
+
+            {/* Blog Posts Table */}
+            <div className="space-y-4">
+              {blogPosts.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p>No blog posts yet. Create your first post!</p>
+                </div>
+              ) : (
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          Title
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          Category
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          Status
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          Date
+                        </th>
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {blogPosts.map((post) => (
+                        <tr key={post._id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3">
+                            <div className="font-medium text-gray-900">
+                              {post.title}
+                            </div>
+                            <div className="text-sm text-gray-500 line-clamp-1">
+                              {post.description}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge variant="outline" className="text-xs">
+                              {post.category}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge
+                              variant={
+                                post.status === "published"
+                                  ? "default"
+                                  : "secondary"
+                              }
+                              className={
+                                post.status === "published"
+                                  ? "bg-green-100 text-green-800 hover:bg-green-100"
+                                  : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+                              }
+                            >
+                              {post.status}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-500">
+                            {new Date(post.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  window.open(`/blog/${post.slug}`, "_blank")
+                                }
+                              >
+                                View
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  window.open(
+                                    `/admin/blog/edit/${post._id}`,
+                                    "_blank"
+                                  )
+                                }
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-red-600 border-red-200 hover:bg-red-50"
+                                onClick={() => handleDeletePost(post._id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
 

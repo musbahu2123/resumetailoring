@@ -59,12 +59,12 @@ export default function Footer() {
               >
                 Resume Builder
               </button>
-              <button
-                onClick={() => scrollToSection("features")}
+              <Link
+                href="/blog"
                 className="block text-gray-300 hover:text-white transition-colors text-sm text-left w-full"
               >
-                Features
-              </button>
+                Blog
+              </Link>
               <button
                 onClick={() => scrollToSection("testimonials")}
                 className="block text-gray-300 hover:text-white transition-colors text-sm text-left w-full"
@@ -72,7 +72,7 @@ export default function Footer() {
                 Testimonials
               </button>
               <Link
-                href="/templates"
+                href="/free-resume-templates"
                 className="block text-gray-300 hover:text-white transition-colors text-sm"
               >
                 Free Templates

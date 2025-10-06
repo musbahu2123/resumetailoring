@@ -20,6 +20,7 @@ import {
   Sparkles,
   Crown,
   User,
+  BookOpen,
 } from "lucide-react";
 import SignInModal from "@/components/SignInModal";
 
@@ -33,9 +34,9 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="flex items-center justify-between p-4 px-6 bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-        <Link href="/" className="flex items-center space-x-2">
-          {/* Updated SVG Logo with Gradient */}
+      <nav className="flex items-center justify-between p-4 px-4 sm:px-6 bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
           <div className="relative">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-white" />
@@ -47,7 +48,16 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* Blog Link - Hidden on small screens, shown on medium and up */}
+          <Link
+            href="/blog"
+            className="hidden md:flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
+          >
+            <BookOpen size={16} />
+            Blog
+          </Link>
+
           {/* Navigation Links - Only show when logged in */}
           {session ? (
             <div className="hidden md:flex items-center space-x-6">
@@ -56,12 +66,6 @@ export default function Navbar() {
                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
               >
                 Settings
-              </Link>
-              <Link
-                href="/templates"
-                className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
-              >
-                Templates
               </Link>
               <Link
                 href="/documents"
@@ -73,10 +77,10 @@ export default function Navbar() {
           ) : null}
 
           {session ? (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
               {/* Pro Badge if user is subscribed */}
               {session.user?.subscription === "pro" && (
-                <div className="hidden md:flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 rounded-full text-sm font-medium">
+                <div className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 rounded-full text-sm font-medium">
                   <Crown size={14} />
                   <span>Pro</span>
                 </div>
@@ -87,12 +91,23 @@ export default function Navbar() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="rounded-full border-gray-300 hover:border-blue-300"
+                    className="rounded-full border-gray-300 hover:border-blue-300 w-9 h-9 sm:w-10 sm:h-10"
                   >
                     <Menu size={18} className="text-gray-600" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                  {/* Blog in dropdown for mobile */}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/blog"
+                      className="flex items-center gap-2 cursor-pointer text-gray-700 md:hidden"
+                    >
+                      <BookOpen size={16} />
+                      Blog
+                    </Link>
+                  </DropdownMenuItem>
+
                   <DropdownMenuItem asChild>
                     <Link
                       href="/documents"
@@ -122,20 +137,55 @@ export default function Navbar() {
               </DropdownMenu>
             </div>
           ) : (
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <Button
                 variant="outline"
-                className="flex items-center gap-2 border-gray-300 text-gray-700 hover:border-blue-300 hover:text-blue-600 hidden md:flex"
+                className="flex items-center gap-2 border-gray-300 text-gray-700 hover:border-blue-300 hover:text-blue-600 hidden sm:flex"
                 onClick={() => setIsModalOpen(true)}
+                size="sm"
               >
-                <LogIn size={16} /> Sign In
+                <LogIn size={16} />
+                <span className="hidden sm:inline">Sign In</span>
               </Button>
+
               <Button
                 className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 onClick={() => setIsModalOpen(true)}
+                size="sm"
               >
-                <UserCheck size={16} /> Get Started
+                <UserCheck size={16} />
+                <span className="hidden xs:inline">Get Started</span>
+                <span className="xs:hidden">Start</span>
               </Button>
+
+              {/* Mobile menu for non-logged in users */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full border-gray-300 hover:border-blue-300 md:hidden w-9 h-9"
+                  >
+                    <Menu size={18} className="text-gray-600" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {/* Blog in dropdown for mobile */}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/blog"
+                      className="flex items-center gap-2 cursor-pointer text-gray-700 md:hidden"
+                    >
+                      <BookOpen size={16} />
+                      Blog
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setIsModalOpen(true)}>
+                    <LogIn size={16} />
+                    Sign In
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           )}
         </div>

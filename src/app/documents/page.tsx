@@ -399,7 +399,7 @@ export default function DocumentsPage() {
                       </Button>
                     </div>
 
-                    <Button
+                    {/* <Button
                       variant="ghost"
                       size="sm"
                       className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -407,7 +407,7 @@ export default function DocumentsPage() {
                     >
                       <Trash2 size={14} className="mr-2" />
                       Delete
-                    </Button>
+                    </Button> */}
                   </div>
                 </CardContent>
               </Card>
