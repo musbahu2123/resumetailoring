@@ -1,4 +1,4 @@
-// app/admin/blog/edit/[id]/page.tsx - UPDATED
+// app/admin/blog/edit/[id]/page.tsx - FINAL VERSION with JSON-LD INPUT
 "use client";
 
 import { useState, useEffect } from "react";
@@ -24,6 +24,7 @@ import {
   X,
   AlertCircle,
   Target,
+  Code, // 💡 NEW: Icon for JSON-LD
 } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor"; // ADD THIS IMPORT
 
@@ -53,7 +54,7 @@ export default function EditBlogPost() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // UPDATE FORM STATE TO MATCH NEW BLOG POST
+  // 🛠️ UPDATED: Added jsonLd to the initial state
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -67,6 +68,7 @@ export default function EditBlogPost() {
     metaTitle: "",
     metaDescription: "",
     focusKeyword: "",
+    jsonLd: "", // ⬅️ NEW FIELD: JSON-LD Schema string
   });
 
   const [seoScore, setSeoScore] = useState<SEOScore>({
@@ -81,7 +83,7 @@ export default function EditBlogPost() {
     fetchPost();
   }, [postId]);
 
-  // UPDATE FETCH POST TO INCLUDE NEW FIELDS
+  // 🛠️ UPDATED: Fetch post now includes jsonLd
   const fetchPost = async () => {
     try {
       const response = await fetch(`/api/admin/blog`);
@@ -102,6 +104,7 @@ export default function EditBlogPost() {
           metaTitle: post.metaTitle || "",
           metaDescription: post.metaDescription || "",
           focusKeyword: post.focusKeyword || "",
+          jsonLd: post.jsonLd || "", // ⬅️ Handle fetching jsonLd
         });
       }
     } catch (error) {
@@ -233,7 +236,7 @@ export default function EditBlogPost() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main Content - 3/4 width */}
             <div className="lg:col-span-3 space-y-6">
-              {/* SEO Score Card - ADD THIS */}
+              {/* SEO Score Card */}
               <Card className="border-l-4 border-l-blue-500">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2">
@@ -294,7 +297,7 @@ export default function EditBlogPost() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Focus Keyword - ADD THIS */}
+                  {/* Focus Keyword */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       Focus Keyword
@@ -346,7 +349,7 @@ export default function EditBlogPost() {
                     />
                   </div>
 
-                  {/* Meta Title - ADD THIS */}
+                  {/* Meta Title */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <label className="text-sm font-medium text-gray-700">
@@ -446,7 +449,7 @@ export default function EditBlogPost() {
                     />
                   </div>
 
-                  {/* Meta Description - ADD THIS */}
+                  {/* Meta Description */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <label className="text-sm font-medium text-gray-700">
@@ -478,7 +481,7 @@ export default function EditBlogPost() {
                     />
                   </div>
 
-                  {/* Featured Image - ADD THIS */}
+                  {/* Featured Image */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">
                       Featured Image
@@ -533,7 +536,7 @@ export default function EditBlogPost() {
                       </span>
                     </div>
 
-                    {/* REPLACE TEXTAREA WITH RICH TEXT EDITOR */}
+                    {/* Rich Text Editor */}
                     <RichTextEditor
                       value={formData.content}
                       onChange={(content) =>
@@ -665,7 +668,39 @@ export default function EditBlogPost() {
                 </CardContent>
               </Card>
 
-              {/* SEO Preview - ADD THIS */}
+              {/* 🚀 NEW CARD: JSON-LD Schema Input */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Code className="w-4 h-4" />
+                    JSON-LD Schema
+                  </CardTitle>
+                  <CardDescription>
+                    Structured data for Rich Results (Article Schema)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Textarea
+                    value={formData.jsonLd}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        jsonLd: e.target.value,
+                      }))
+                    }
+                    placeholder="Paste your Article JSON-LD Schema here..."
+                    rows={10}
+                    className="font-mono text-xs"
+                  />
+                  <p className="text-xs text-gray-500">
+                    This is usually generated by an SEO tool or your backend
+                    upon saving.
+                  </p>
+                </CardContent>
+              </Card>
+              {/* ---------------------------------------------------- */}
+
+              {/* SEO Preview */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">

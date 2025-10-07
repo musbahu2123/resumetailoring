@@ -1,4 +1,4 @@
-// models/BlogPost.ts - OPTIMIZED FIELD ORDER
+// models/BlogPost.ts - UPDATED
 import mongoose from "mongoose";
 
 const blogPostSchema = new mongoose.Schema({
@@ -29,6 +29,7 @@ const blogPostSchema = new mongoose.Schema({
   metaTitle: String,
   metaDescription: String,
   focusKeyword: String,
+  jsonLd: String, // ✅ ADD THIS FIELD
 
   // Categorization
   category: {

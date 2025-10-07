@@ -1,4 +1,4 @@
-// app/blog/[slug]/page.tsx - FIXED VERSION
+// app/blog/[slug]/page.tsx - FIXED VERSION with JSON-LD Schema
 "use client";
 
 import Link from "next/link";
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
+// 🛠️ UPDATED: Added jsonLd to the BlogPost interface
 interface BlogPost {
   _id: string;
   title: string;
@@ -28,6 +29,7 @@ interface BlogPost {
   author: string;
   publishedAt: string;
   createdAt: string;
+  jsonLd?: string; // ⬅️ NEW FIELD: Optional string for JSON-LD schema
 }
 
 export default function BlogPostPage() {
@@ -77,17 +79,16 @@ export default function BlogPostPage() {
       if (response.status === 404) {
         notFound();
       }
-      const postData = await response.json();
+      const postData: BlogPost = await response.json(); // Type assertion for postData
       setPost(postData);
 
       // Fetch related posts
       const relatedResponse = await fetch("/api/blog");
-      const allPosts = await relatedResponse.json();
+      const allPosts: BlogPost[] = await relatedResponse.json();
       setRelatedPosts(
         allPosts
           .filter(
-            (p: BlogPost) =>
-              p._id !== postData._id && p.category === postData.category
+            (p) => p._id !== postData._id && p.category === postData.category
           )
           .slice(0, 3)
       );
@@ -119,6 +120,16 @@ export default function BlogPostPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+      {/* 🚀 JSON-LD Schema Injection */}
+      {post.jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: post.jsonLd,
+          }}
+        />
+      )}
+
       <div className="container mx-auto max-w-4xl">
         {/* Back Button */}
         <div className="mb-8">
