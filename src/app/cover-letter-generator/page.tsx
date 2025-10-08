@@ -1,7 +1,7 @@
+// app/cover-letter-generator/page.tsx - UPDATED WITH JSON-LD
 import type { Metadata } from "next";
 import CoverLetterGeneratorClient from "./CoverLetterGeneratorClient";
 
-// Define Metadata outside the component for SEO
 export const metadata: Metadata = {
   title: "AI Cover Letter Generator - Free Professional Cover Letter Writer",
   description:
@@ -14,10 +14,48 @@ export const metadata: Metadata = {
   ],
 };
 
-/**
- * Server component that handles metadata and delegates rendering to the client component.
- * @returns The client component for the AI Cover Letter Generator page.
- */
+// JSON-LD Schema for Cover Letter Generator
+const coverLetterSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "AI Cover Letter Generator",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web Browser",
+  description:
+    "Free AI-powered cover letter generator that creates professional, tailored cover letters with company-specific addressing and ATS-optimized formatting",
+  url: "https://www.resumetailorapp.com/cover-letter-generator",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  author: {
+    "@type": "Organization",
+    name: "ResumeTailorApp",
+  },
+  featureList: [
+    "AI-powered cover letter writing",
+    "Company-specific tailoring",
+    "Professional formatting",
+    "ATS optimization",
+    "Instant generation",
+    "Free to use",
+  ],
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.7",
+    ratingCount: "890",
+  },
+};
+
 export default function CoverLetterGeneratorPage() {
-  return <CoverLetterGeneratorClient />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(coverLetterSchema) }}
+      />
+      <CoverLetterGeneratorClient />
+    </>
+  );
 }

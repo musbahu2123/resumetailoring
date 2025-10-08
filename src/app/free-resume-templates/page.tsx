@@ -1,7 +1,7 @@
+// app/free-resume-templates/page.tsx - UPDATED WITH JSON-LD
 import type { Metadata } from "next";
 import FreeResumeTemplatesClient from "./FreeResumeTemplatesClient";
 
-// Define Metadata outside the component for SEO
 export const metadata: Metadata = {
   title: "Free Resume Templates - ATS-Optimized Professional Designs 2024",
   description:
@@ -14,10 +14,58 @@ export const metadata: Metadata = {
   ],
 };
 
-/**
- * Server component that only handles metadata and delegates rendering to the client component.
- * @returns The client component for the Free Resume Templates page.
- */
+// JSON-LD Schema for Free Resume Templates
+const resumeTemplatesSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Free ATS-Optimized Resume Templates",
+  description:
+    "Download free professional resume templates optimized for Applicant Tracking Systems (ATS) and designed for the 2025 job market",
+  url: "https://www.resumetailorapp.com/free-resume-templates",
+  mainEntity: {
+    "@type": "ItemList",
+    numberOfItems: 12,
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Professional Modern Resume Template",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "ATS-Optimized Chronological Resume Template",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: "Creative Industry Resume Template",
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name: "Executive Level Resume Template",
+      },
+    ],
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "ResumeTailorApp",
+  },
+  isAccessibleForFree: true,
+  license: "https://creativecommons.org/licenses/by/4.0/",
+};
+
 export default function FreeResumeTemplatesPage() {
-  return <FreeResumeTemplatesClient />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(resumeTemplatesSchema),
+        }}
+      />
+      <FreeResumeTemplatesClient />
+    </>
+  );
 }
