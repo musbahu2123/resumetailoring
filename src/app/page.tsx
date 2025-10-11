@@ -1,17 +1,11 @@
-// In your landing page component - Complete updated version with double setTimeout for robustness
+// In your landing page component - Remove the local SignInModal function and import the component
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Lock, Upload, FileText, Sparkles, Target } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+
 import HeroSection from "@/components/HeroSection";
 import UploadSection from "@/components/UploadSection";
 import JobDescriptionSection from "@/components/JobDescriptionSection";
@@ -21,47 +15,7 @@ import ExpertAdviceSection from "@/components/ExpertAdviceSection";
 import PricingSection from "@/components/PricingSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import Loader from "@/components/Loader";
-
-interface SignInModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSignIn: () => void;
-}
-
-function SignInModal({ isOpen, onClose, onSignIn }: SignInModalProps) {
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Sign In</DialogTitle>
-          <DialogDescription>
-            Choose your preferred method to sign in.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col gap-4 py-4">
-          <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
-            onClick={onSignIn}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="#FFFFFF"
-            >
-              <path
-                d="M12.24 10.232c-1.12.0-2.03.88-2.03 1.95s.91 1.95 2.03 1.95c1.06 0 1.87-.71 2.01-1.74l-.01-.01c.01-.03.02-.06.02-.09 0-.01-.01-.02-.01-.04l.01-.01a1.85 1.85 0 0 0 .04-.42c0-1.07-.91-1.95-2.03-1.95zM22.61 11.96c0-1.13-.1-2.19-.28-3.23a9.7 9.7 0 0 0-.8-2.58A10.1 10.1 0 0 0 20.3 3.61c-.52-.52-1.12-.96-1.77-1.34-1.28-.7-2.73-1.04-4.26-1.04-2.88 0-5.46 1.4-7.07 3.51a10.02 10.02 0 0 0-3.69 7.42c0 2.21.84 4.25 2.25 5.86s3.32 2.41 5.46 2.41c1.53 0 2.97-.34 4.26-1.04 1.28-.7 2.37-1.68 3.16-2.9l-1.64-1.11c-.5.77-1.11 1.4-1.84 1.88-.73.48-1.57.72-2.48.72-1.2 0-2.28-.46-3.13-1.34s-1.27-2.04-1.27-3.32c0-1.28.45-2.4 1.27-3.32s1.93-1.34 3.13-1.34c1.08 0 2.02.43 2.76 1.23l1.83-1.06c-.84-.79-1.86-1.42-3.03-1.88z"
-                fill="currentColor"
-              />
-            </svg>
-            Sign in with Google
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+import SignInModal from "@/components/SignInModal"; // Import the actual component
 
 export default function LandingPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -508,11 +462,8 @@ export default function LandingPage() {
         <TestimonialsSection />
       </section>
 
-      <SignInModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSignIn={handleSignIn}
-      />
+      {/* Use the same SignInModal component as the navbar */}
+      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 }

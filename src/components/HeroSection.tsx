@@ -93,7 +93,7 @@ export default function HeroSection({
               </div>
             </div>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons - FIXED: Use the onSignIn prop directly */}
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mt-10">
               {isLoggedIn ? (
                 <Button
@@ -105,7 +105,7 @@ export default function HeroSection({
               ) : (
                 <Button
                   className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transition-all duration-200 group"
-                  onClick={onSignIn}
+                  onClick={onSignIn} // This now uses the prop passed from landing page
                 >
                   Tailor My Resume Now
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
