@@ -15,15 +15,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// ✅ ENHANCED: More comprehensive metadata with all target keywords
 export const metadata: Metadata = {
   title: "Resume Tailor App: AI-Powered Resume & Cover Letter Builder for ATS",
   description:
     "Free AI resume builder and cover letter generator. Tailor your resume to any job description instantly. ATS-optimized templates, professional formatting, and instant download. Get more interviews.",
   keywords: [
     "AI Resume Builder",
-    "AI Cover Letter Generator", // ✅ ADDED
-    "Free Resume Templates", // ✅ ADDED
+    "AI Cover Letter Generator",
+    "Free Resume Templates",
     "Resume Tailor",
     "ATS Resume",
     "Cover Letter Generator",
@@ -32,16 +31,15 @@ export const metadata: Metadata = {
     "Resume Optimization",
     "CV Builder",
     "Recruiter-Friendly Resume",
-    "AI Resume Tailor", // ✅ ADDED
-    "Free Resume Builder", // ✅ ADDED
-    "Professional Resume Templates", // ✅ ADDED
+    "AI Resume Tailor",
+    "Free Resume Builder",
+    "Professional Resume Templates",
   ],
   authors: [{ name: "Resume Tailor App" }],
   creator: "Resume Tailor App",
   publisher: "Resume Tailor App",
   robots: "index, follow",
-  // ✅ ADDED: Canonical URL for better SEO
-  metadataBase: new URL("https://www.resumetailorngapp.com"),
+  metadataBase: new URL("https://www.resumetailorapp.com"), // ✅ FIXED URL
   alternates: {
     canonical: "/",
   },
@@ -50,7 +48,7 @@ export const metadata: Metadata = {
       "Resume Tailor App: AI-Powered Resume & Cover Letter Builder for ATS",
     description:
       "Land your dream job. Instantly tailor your resume & cover letter to any job description using AI. Get past ATS and impress recruiters.",
-    url: "https://www.resumetailorngapp.com",
+    url: "https://www.resumetailorapp.com",
     siteName: "Resume Tailor App",
     images: [
       {
@@ -71,11 +69,9 @@ export const metadata: Metadata = {
     creator: "@resumetailorapp",
     images: ["/og-image.png"],
   },
-  // ✅ ENHANCED: Better verification structure
   verification: {
-    google: "ui4OZp4LsNsMYVfVniuAafxkX9mxh2vvMSvoEemFxgI", // Use proper verification property
+    google: "ui4OZp4LsNsMYVfVniuAafxkX9mxh2vvMSvoEemFxgI",
   },
-  // ✅ ADDED: Additional SEO enhancements
   category: "career",
   classification: "AI Resume Builder, Career Tools, Job Search",
 };
@@ -88,7 +84,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* ✅ ADDED: Structured Data for Local Business */}
+        {/* ✅ Favicon */}
+        <link rel="icon" href="/favicon.png" sizes="48x48" type="image/png" />
+        <link rel="shortcut icon" href="/favicon.png" />
+
+        {/* ✅ Optional: theme color */}
+        <meta name="theme-color" content="#ffffff" />
+
+        {/* ✅ Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
