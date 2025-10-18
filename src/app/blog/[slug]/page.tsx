@@ -1,4 +1,4 @@
-// app/blog/[slug]/page.tsx - DEBUG VERSION
+// app/blog/[slug]/page.tsx - CLEAN VERSION
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BlogPostClient from "./BlogPostClient";
@@ -25,32 +25,22 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const { slug } = await params;
-    console.log("🔍 generateMetadata - slug:", slug);
-    console.log(
-      "🔍 generateMetadata - NEXTAUTH_URL:",
-      process.env.NEXTAUTH_URL
-    );
 
     const apiUrl = `${
       process.env.NEXTAUTH_URL || "http://localhost:3000"
     }/api/blog/${slug}`;
-    console.log("🔍 generateMetadata - API URL:", apiUrl);
 
     const response = await fetch(apiUrl, {
       cache: "no-store",
     });
 
-    console.log("🔍 generateMetadata - Response status:", response.status);
-
     if (!response.ok) {
-      console.log("❌ generateMetadata - Response not OK");
       return {
         title: "Blog Post Not Found",
       };
     }
 
     const post: BlogPost = await response.json();
-    console.log("✅ generateMetadata - Post found:", post.title);
 
     return {
       title: post.title,
@@ -65,7 +55,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch (error) {
-    console.error("❌ generateMetadata - Error:", error);
     return {
       title: "Blog Post",
     };
@@ -74,30 +63,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 async function getPostData(slug: string): Promise<BlogPost | null> {
   try {
-    console.log("🔄 getPostData - slug:", slug);
-    console.log("🔄 getPostData - NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
-
     const apiUrl = `${
       process.env.NEXTAUTH_URL || "http://localhost:3000"
     }/api/blog/${slug}`;
-    console.log("🔄 getPostData - API URL:", apiUrl);
 
     const response = await fetch(apiUrl, {
       cache: "no-store",
     });
 
-    console.log("🔄 getPostData - Response status:", response.status);
-
     if (!response.ok) {
-      console.log("❌ getPostData - Response not OK");
       return null;
     }
 
     const post = await response.json();
-    console.log("✅ getPostData - Post found:", post.title);
     return post;
   } catch (error) {
-    console.error("🚨 getPostData - Error:", error);
     return null;
   }
 }
@@ -105,17 +85,12 @@ async function getPostData(slug: string): Promise<BlogPost | null> {
 export default async function BlogPostPage({ params }: Props) {
   try {
     const { slug } = await params;
-    console.log("🚀 BlogPostPage - slug:", slug);
 
     const post = await getPostData(slug);
-    console.log("🚀 BlogPostPage - post:", post ? "Found" : "Not found");
 
     if (!post) {
-      console.log("❌ BlogPostPage - Showing 404");
       notFound();
     }
-
-    console.log("✅ BlogPostPage - Rendering post:", post.title);
 
     return (
       <>
@@ -129,7 +104,6 @@ export default async function BlogPostPage({ params }: Props) {
       </>
     );
   } catch (error) {
-    console.error("🚨 BlogPostPage - Error:", error);
     notFound();
   }
 }

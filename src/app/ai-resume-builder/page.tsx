@@ -1,28 +1,29 @@
-// app/ai-resume-builder/page.tsx - UPDATED WITH JSON-LD
+// app/ai-resume-builder/page.tsx - ENHANCED
 import type { Metadata } from "next";
 import AIResumeBuilderClient from "./AIResumeBuilderClient";
 
-// Define Metadata outside the component for SEO
 export const metadata: Metadata = {
-  title: "AI Resume Builder - Free ATS-Optimized Resume Generator 2024",
+  title: "AI Resume Builder - Beat ATS & Get More Interviews (Free)",
   description:
-    "Free AI resume builder that tailors your resume to any job description. ATS-optimized templates, instant download, and professional formatting. Get more interviews.",
+    "🎯 Get Past Automated Screening - AI tailors your resume to any job description instantly. Recruiter-approved templates that get 3x more interviews. Free tool.",
   keywords: [
     "AI resume builder",
     "free resume builder",
     "ATS resume",
     "resume tailor",
     "AI resume generator",
+    "resume maker",
   ],
 };
 
-// JSON-LD Schema for AI Resume Builder
+// ENHANCED JSON-LD Schema for AI Resume Builder
 const resumeBuilderSchema = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   name: "AI Resume Builder",
   applicationCategory: "BusinessApplication",
-  operatingSystem: "Web Browser",
+  operatingSystem: "Any",
+  permissions: "Free",
   description:
     "Free AI-powered resume builder that tailors your resume to any job description with ATS-optimized templates and professional formatting",
   url: "https://www.resumetailorapp.com/ai-resume-builder",
@@ -30,10 +31,12 @@ const resumeBuilderSchema = {
     "@type": "Offer",
     price: "0",
     priceCurrency: "USD",
+    description: "Free forever plan with instant access",
   },
   author: {
     "@type": "Organization",
     name: "ResumeTailorApp",
+    url: "https://www.resumetailorapp.com",
   },
   featureList: [
     "AI-powered resume tailoring",
@@ -41,18 +44,18 @@ const resumeBuilderSchema = {
     "Instant download",
     "Professional formatting",
     "Free to use",
+    "Recruiter-approved designs",
   ],
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: "4.8",
     ratingCount: "1250",
+    bestRating: "5",
+    worstRating: "1",
   },
+  applicationSuite: "ResumeTailorApp",
 };
 
-/**
- * Server component that only handles metadata and delegates rendering to the client component.
- * @returns The client component for the AI Resume Builder page.
- */
 export default function AIResumeBuilderPage() {
   return (
     <>

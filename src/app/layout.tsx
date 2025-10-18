@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Resume Tailor App: AI-Powered Resume & Cover Letter Builder for ATS",
+  title: "AI Resume Builder: Get 3x More Interviews (Free Tool)",
   description:
-    "Free AI resume builder and cover letter generator. Tailor your resume to any job description instantly. ATS-optimized templates, professional formatting, and instant download. Get more interviews.",
+    "🚀 Land Your Dream Job - AI tailors your resume & cover letter to ANY job in 30 seconds. 25+ years recruiter insights + ATS optimization. Free instant download.",
   keywords: [
     "AI Resume Builder",
     "AI Cover Letter Generator",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   creator: "Resume Tailor App",
   publisher: "Resume Tailor App",
   robots: "index, follow",
-  metadataBase: new URL("https://www.resumetailorapp.com"), // ✅ FIXED URL
+  metadataBase: new URL("https://www.resumetailorapp.com"),
   alternates: {
     canonical: "/",
   },

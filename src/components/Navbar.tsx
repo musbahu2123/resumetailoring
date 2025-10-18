@@ -9,6 +9,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   LogIn,
@@ -19,8 +21,8 @@ import {
   Menu,
   Sparkles,
   Crown,
-  User,
   BookOpen,
+  ChevronDown,
 } from "lucide-react";
 import SignInModal from "@/components/SignInModal";
 
@@ -48,34 +50,105 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          {/* Blog Link - Hidden on small screens, shown on medium and up */}
+        {/* Centered Navigation Links */}
+        <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2 space-x-8">
+          {/* Blog Link */}
           <Link
             href="/blog"
-            className="hidden md:flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
+            className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
           >
             <BookOpen size={16} />
             Blog
           </Link>
 
-          {/* Navigation Links - Only show when logged in */}
-          {session ? (
-            <div className="hidden md:flex items-center space-x-6">
-              <Link
-                href="/settings"
-                className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+          {/* Free Tools Dropdown Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-medium"
               >
-                Settings
-              </Link>
+                <FileText size={16} />
+                Free Tools
+                <ChevronDown size={14} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="center"
+              className="w-64 bg-white border border-gray-200 shadow-lg"
+            >
+              <DropdownMenuLabel>AI Resume Tools</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/tools/biodata-format-generator"
+                  className="flex items-center gap-2 cursor-pointer w-full"
+                >
+                  <Sparkles size={14} />
+                  Biodata Format Generator
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/tools/two-weeks-notice-generator"
+                  className="flex items-center gap-2 cursor-pointer w-full"
+                >
+                  <Sparkles size={14} />
+                  Two Weeks Notice Generator
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/tools/skills-section-generator"
+                  className="flex items-center gap-2 cursor-pointer w-full"
+                >
+                  <Sparkles size={14} />
+                  Skills Section Generator
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/tools/maternity-leave-letter-generator"
+                  className="flex items-center gap-2 cursor-pointer w-full"
+                >
+                  <Sparkles size={14} />
+                  Maternity Leave Generator
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/tools"
+                  className="flex items-center gap-2 cursor-pointer text-blue-600 font-semibold w-full"
+                >
+                  <FileText size={14} />
+                  View All Tools
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Navigation Links - Only show when logged in */}
+          {session && (
+            <>
               <Link
                 href="/documents"
                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
               >
                 Documents
               </Link>
-            </div>
-          ) : null}
+              <Link
+                href="/settings"
+                className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+              >
+                Settings
+              </Link>
+            </>
+          )}
+        </div>
 
+        {/* Right Side Actions */}
+        <div className="flex items-center space-x-2 sm:space-x-4">
           {session ? (
             <div className="flex items-center space-x-3 sm:space-x-4">
               {/* Pro Badge if user is subscribed */}
@@ -96,22 +169,36 @@ export default function Navbar() {
                     <Menu size={18} className="text-gray-600" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-48 bg-white border border-gray-200 shadow-lg"
+                >
                   {/* Blog in dropdown for mobile */}
                   <DropdownMenuItem asChild>
                     <Link
                       href="/blog"
-                      className="flex items-center gap-2 cursor-pointer text-gray-700 md:hidden"
+                      className="flex items-center gap-2 cursor-pointer text-gray-700 md:hidden w-full"
                     >
                       <BookOpen size={16} />
                       Blog
                     </Link>
                   </DropdownMenuItem>
 
+                  {/* Free Tools in dropdown for mobile */}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/tools"
+                      className="flex items-center gap-2 cursor-pointer text-gray-700 md:hidden w-full"
+                    >
+                      <FileText size={16} />
+                      Free Tools
+                    </Link>
+                  </DropdownMenuItem>
+
                   <DropdownMenuItem asChild>
                     <Link
                       href="/documents"
-                      className="flex items-center gap-2 cursor-pointer text-gray-700"
+                      className="flex items-center gap-2 cursor-pointer text-gray-700 w-full"
                     >
                       <FileText size={16} />
                       My Documents
@@ -120,7 +207,7 @@ export default function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link
                       href="/settings"
-                      className="flex items-center gap-2 cursor-pointer text-gray-700"
+                      className="flex items-center gap-2 cursor-pointer text-gray-700 w-full"
                     >
                       <Settings size={16} />
                       Settings
@@ -128,7 +215,7 @@ export default function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="flex items-center gap-2 cursor-pointer text-red-600"
+                    className="flex items-center gap-2 cursor-pointer text-red-600 w-full"
                   >
                     <LogOut size={16} />
                     Logout
@@ -169,18 +256,36 @@ export default function Navbar() {
                     <Menu size={18} className="text-gray-600" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-48 bg-white border border-gray-200 shadow-lg"
+                >
                   {/* Blog in dropdown for mobile */}
                   <DropdownMenuItem asChild>
                     <Link
                       href="/blog"
-                      className="flex items-center gap-2 cursor-pointer text-gray-700 md:hidden"
+                      className="flex items-center gap-2 cursor-pointer text-gray-700 md:hidden w-full"
                     >
                       <BookOpen size={16} />
                       Blog
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setIsModalOpen(true)}>
+
+                  {/* Free Tools in dropdown for mobile */}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/tools"
+                      className="flex items-center gap-2 cursor-pointer text-gray-700 md:hidden w-full"
+                    >
+                      <FileText size={16} />
+                      Free Tools
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => setIsModalOpen(true)}
+                    className="w-full"
+                  >
                     <LogIn size={16} />
                     Sign In
                   </DropdownMenuItem>

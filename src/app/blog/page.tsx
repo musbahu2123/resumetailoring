@@ -1,4 +1,4 @@
-// app/blog/page.tsx - FIXED VERSION
+// app/blog/page.tsx - UPDATED WITH TEMPLATE SECTION
 "use client";
 
 import Link from "next/link";
@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, ArrowRight, Search } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Search, Sparkles } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 
 // Define the structure for a blog post fetched from the API
@@ -140,14 +140,18 @@ export default function BlogPage() {
 
   // --- Main Blog Page Content ---
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
-      <div className="container mx-auto max-w-6xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <Sparkles className="w-4 h-4" />
+            Blog & Resources
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
             Resume & Career Blog
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto px-4">
             Expert tips, AI tools, and proven strategies to help you land your
             dream job. Stay updated with the latest in resume writing and career
             advancement.
@@ -337,37 +341,85 @@ export default function BlogPage() {
           </div>
         )}
 
-        {/* CTA Section */}
-        <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-2xl">
-          <CardContent className="p-12 text-center">
-            <h2 className="text-3xl font-bold mb-4">
-              Ready to Create Your Perfect Resume?
-            </h2>
-            <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
-              Put these tips into practice with our AI-powered resume builder.
-              Get tailored resumes and cover letters in minutes.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/#builder" passHref>
+        {/* BOTTOM TEMPLATES SECTION - FULL WIDTH CENTERED */}
+        <div className="flex justify-center w-full">
+          <div className="w-full max-w-6xl">
+            <div className="bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl shadow-xl p-8 lg:p-12 text-white text-center">
+              <div className="text-center mb-12">
+                <h3 className="text-3xl font-bold mb-6">
+                  Ready to Create Your Perfect Resume?
+                </h3>
+                <p className="text-blue-100 text-xl max-w-2xl mx-auto">
+                  Choose from our professional templates and let AI do the
+                  formatting for you.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-12 max-w-4xl mx-auto">
+                {/* Template 1 - Creative */}
+                <div className="bg-white/10 rounded-2xl p-6 text-center backdrop-blur-sm">
+                  <div className="aspect-[3/4] bg-gray-800 rounded-xl overflow-hidden mb-6">
+                    <Image
+                      src="/images/templates/creative.jpg"
+                      alt="Creative Resume Template"
+                      width={300}
+                      height={400}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <h4 className="font-bold text-xl mb-3">Modern Creative</h4>
+                  <p className="text-blue-200 text-lg mb-4">
+                    Perfect for tech and creative roles
+                  </p>
+                  <div className="flex flex-col gap-2 text-sm text-blue-200">
+                    <span>✅ ATS Optimized</span>
+                    <span>✅ Mobile Friendly</span>
+                    <span>✅ Modern Design</span>
+                  </div>
+                </div>
+
+                {/* Template 2 - Classic */}
+                <div className="bg-white/10 rounded-2xl p-6 text-center backdrop-blur-sm">
+                  <div className="aspect-[3/4] bg-gray-800 rounded-xl overflow-hidden mb-6">
+                    <Image
+                      src="/images/templates/classic.jpg"
+                      alt="Classic Resume Template"
+                      width={300}
+                      height={400}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <h4 className="font-bold text-xl mb-3">
+                    Professional Classic
+                  </h4>
+                  <p className="text-blue-200 text-lg mb-4">
+                    Ideal for corporate and traditional roles
+                  </p>
+                  <div className="flex flex-col gap-2 text-sm text-blue-200">
+                    <span>✅ Recruiter Approved</span>
+                    <span>✅ ATS Friendly</span>
+                    <span>✅ Timeless Design</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center">
                 <Button
-                  size="lg"
-                  className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-lg font-semibold"
+                  className="bg-white text-blue-600 hover:bg-gray-100 font-bold py-5 px-12 text-lg shadow-2xl"
+                  asChild
                 >
-                  Start Building Now
+                  <Link href="/">
+                    <Sparkles className="w-5 h-5 mr-3" />
+                    Create Your Resume Now - Free
+                  </Link>
                 </Button>
-              </Link>
-              <Link href="/#builder" passHref>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-blue-600 px-8 py-3 text-lg font-semibold transition-all duration-200"
-                >
-                  Try AI Resume Builder
-                </Button>
-              </Link>
+                <p className="text-blue-200 text-lg mt-6">
+                  Join thousands who landed their dream job with our AI builder
+                </p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
