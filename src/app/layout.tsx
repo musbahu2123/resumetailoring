@@ -100,9 +100,6 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#2563eb" />
 
-        {/* ✅ Optional: theme color */}
-        <meta name="theme-color" content="#ffffff" />
-
         {/* ✅ Structured Data */}
         <script
           type="application/ld+json"
