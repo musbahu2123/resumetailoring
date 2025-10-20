@@ -96,8 +96,7 @@ export default function RootLayout({
           href="/apple-touch-icon.png?v=3"
         />
 
-        {/* ✅ Optional but recommended */}
-        <link rel="manifest" href="/site.webmanifest" />
+        {/* ✅ Optional but recommended *
         <meta name="theme-color" content="#2563eb" />
 
         {/* ✅ Structured Data */}
