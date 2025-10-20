@@ -84,9 +84,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* ✅ Favicon */}
-        <link rel="icon" href="/favicon.png" sizes="48x48" type="image/png" />
-        <link rel="shortcut icon" href="/favicon.png" />
+        {/* ✅ Essential Favicons with CACHE BUSTING */}
+        <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
+        <link rel="icon" href="/favicon.png?v=3" type="image/png" />
+        <link rel="shortcut icon" href="/favicon.ico?v=3" />
+
+        {/* ✅ Apple Touch Icon (Critical for iOS/mobile) */}
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png?v=3"
+        />
+
+        {/* ✅ Optional but recommended */}
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="theme-color" content="#2563eb" />
 
         {/* ✅ Optional: theme color */}
         <meta name="theme-color" content="#ffffff" />
