@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     siteName: "Resume Tailor App",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://www.resumetailorapp.com/og-image.png",
         width: 1200,
         height: 630,
         alt: "Resume Tailor App - AI Resume Builder & Cover Letter Generator",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     description:
       "Tailor your resume & cover letter to any job in seconds. Beat the ATS and get more interviews.",
     creator: "@resumetailorapp",
-    images: ["/og-image.png"],
+    images: ["https://www.resumetailorapp.com/og-image.png"],
   },
   verification: {
     google: "ui4OZp4LsNsMYVfVniuAafxkX9mxh2vvMSvoEemFxgI",
@@ -84,22 +84,33 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* ✅ Essential Favicons with CACHE BUSTING */}
-        <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
-        <link rel="icon" href="/favicon.png?v=3" type="image/png" />
-        <link rel="shortcut icon" href="/favicon.ico?v=3" />
+        {/* ✅ CRITICAL FIX - Absolute URLs with aggressive cache busting */}
+        <link
+          rel="icon"
+          href="https://www.resumetailorapp.com/favicon.ico?v=5"
+          sizes="any"
+        />
+        <link
+          rel="icon"
+          href="https://www.resumetailorapp.com/favicon.png?v=5"
+          type="image/png"
+        />
+        <link
+          rel="shortcut icon"
+          href="https://www.resumetailorapp.com/favicon.ico?v=5"
+        />
 
-        {/* ✅ Apple Touch Icon (Critical for iOS/mobile) */}
+        {/* ✅ Apple Touch Icon with absolute URL */}
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="/apple-touch-icon.png?v=3"
+          href="https://www.resumetailorapp.com/apple-touch-icon.png?v=5"
         />
 
-        {/* ✅ Optional but recommended *
+        {/* ✅ Theme Color */}
         <meta name="theme-color" content="#2563eb" />
 
-        {/* ✅ Structured Data */}
+        {/* ✅ Structured Data with absolute URL */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -107,6 +118,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
               name: "Resume Tailor App",
+              url: "https://www.resumetailorapp.com",
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web Browser",
               description:
@@ -119,9 +131,20 @@ export default function RootLayout({
               author: {
                 "@type": "Organization",
                 name: "Resume Tailor App",
+                url: "https://www.resumetailorapp.com",
               },
             }),
           }}
+        />
+
+        {/* ✅ Additional meta for favicon consistency */}
+        <meta
+          property="og:image"
+          content="https://www.resumetailorapp.com/favicon.png"
+        />
+        <meta
+          name="twitter:image"
+          content="https://www.resumetailorapp.com/favicon.png"
         />
       </head>
       <body

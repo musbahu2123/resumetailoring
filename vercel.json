@@ -1,0 +1,24 @@
+{
+  "redirects": [
+    {
+      "source": "/favicon.ico",
+      "destination": "https://www.resumetailorapp.com/favicon.ico",
+      "permanent": true
+    },
+    {
+      "source": "/favicon.png", 
+      "destination": "https://www.resumetailorapp.com/favicon.png",
+      "permanent": true
+    },
+    {
+      "source": "/apple-touch-icon.png",
+      "destination": "https://www.resumetailorapp.com/apple-touch-icon.png", 
+      "permanent": true
+    },
+    {
+      "source": "/apple-touch-icon",
+      "destination": "https://www.resumetailorapp.com/apple-touch-icon.png",
+      "permanent": true
+    }
+  ]
+}
