@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { auth } from "@/auth";
 import Job from "@/models/job";
+import AnonymousJob from "@/models/AnonymousJob"; // Add this import
 import User from "@/models/user";
 import dbConnect from "@/lib/dbConnect";
 
@@ -13,14 +14,9 @@ const openai = new OpenAI({
 export async function POST(req: Request) {
   try {
     const session = await auth();
-
-    if (!session || !session.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    // Connect to the database
     await dbConnect();
-    const { jobId } = await req.json();
+
+    const { jobId, anonymousId } = await req.json(); // Add anonymousId
 
     if (!jobId) {
       return NextResponse.json(
@@ -29,25 +25,74 @@ export async function POST(req: Request) {
       );
     }
 
-    const job = await Job.findOne({ _id: jobId, userId: session.user.id });
-    if (!job) {
-      return NextResponse.json({ message: "Job not found" }, { status: 404 });
-    }
+    let job;
+    let isAnonymous = false;
+    let user = null;
 
-    const user = await User.findById(session.user.id);
-    if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-    }
+    // ✅ NEW: Handle anonymous users
+    if (!session || !session.user) {
+      if (!anonymousId) {
+        return NextResponse.json(
+          { message: "Anonymous ID required for free generation" },
+          { status: 400 }
+        );
+      }
 
-    if (user.credits <= 0) {
-      return NextResponse.json(
-        { message: "No credits remaining" },
-        { status: 402 }
-      );
+      // Find anonymous job
+      job = await AnonymousJob.findOne({
+        _id: jobId,
+        sessionId: anonymousId,
+      });
+
+      if (!job) {
+        return NextResponse.json({ message: "Job not found" }, { status: 404 });
+      }
+
+      // Check if this session already used their free credit
+      const existingCompletedJob = await AnonymousJob.findOne({
+        sessionId: anonymousId,
+        tailoredResumeText: { $exists: true, $ne: "" },
+      });
+
+      if (
+        existingCompletedJob &&
+        existingCompletedJob._id.toString() !== jobId
+      ) {
+        return NextResponse.json(
+          {
+            message:
+              "Free generation already used. Please sign up for more credits.",
+          },
+          { status: 402 }
+        );
+      }
+
+      isAnonymous = true;
+    } else {
+      // ✅ EXISTING: Logged-in user flow (unchanged)
+      job = await Job.findOne({ _id: jobId, userId: session.user.id });
+      if (!job) {
+        return NextResponse.json({ message: "Job not found" }, { status: 404 });
+      }
+
+      user = await User.findById(session.user.id);
+      if (!user) {
+        return NextResponse.json(
+          { message: "User not found" },
+          { status: 404 }
+        );
+      }
+
+      if (user.credits <= 0) {
+        return NextResponse.json(
+          { message: "No credits remaining" },
+          { status: 402 }
+        );
+      }
     }
 
     // ✅ USE GPT-4-TURBO WHICH SUPPORTS JSON MODE
-    const model = "gpt-4-turbo"; // or "gpt-4-turbo-preview" or "gpt-3.5-turbo"
+    const model = "gpt-4-turbo";
 
     // 🔥 EXACT SAME PROMPT - NO CHANGES
     const prompt = `
@@ -159,7 +204,6 @@ ${job.originalResumeText}
       ],
       temperature: 0.7,
       max_tokens: 4000,
-      // ✅ REMOVED response_format for compatibility - we'll use strong prompting instead
     });
 
     const rawOutput = completion.choices[0]?.message?.content;
@@ -171,7 +215,6 @@ ${job.originalResumeText}
     // ✅ SAME PARSING LOGIC - NO CHANGES
     let aiOutput;
     try {
-      // Even without response_format, OpenAI usually returns clean JSON with our strong prompt
       let cleaned = rawOutput
         .replace(/^\s*```json\s*/i, "")
         .replace(/```$/i, "")
@@ -249,22 +292,34 @@ ${job.originalResumeText}
       .replace(/\n{3,}/g, "\n\n")
       .trim();
 
-    // ✅ SAME DATABASE LOGIC - NO CHANGES
-    job.tailoredResumeText = tailoredResumeText;
-    job.coverLetterText = coverLetterText;
-    job.atsScore = aiOutput.atsScore || 0;
-    await job.save();
+    // ✅ SAVE RESULTS based on user type
+    if (isAnonymous) {
+      // Save to AnonymousJob
+      job.tailoredResumeText = tailoredResumeText;
+      job.coverLetterText = coverLetterText;
+      job.atsScore = aiOutput.atsScore || 0;
+      await job.save();
+    } else {
+      // ✅ EXISTING: Save to Job and deduct credit
+      job.tailoredResumeText = tailoredResumeText;
+      job.coverLetterText = coverLetterText;
+      job.atsScore = aiOutput.atsScore || 0;
+      await job.save();
 
-    // ✅ Deduct credit
-    user.credits = Math.max(user.credits - 1, 0);
-    await user.save();
+      // Deduct credit only for authenticated users
+      if (user) {
+        user.credits = Math.max(user.credits - 1, 0);
+        await user.save();
+      }
+    }
 
     return NextResponse.json(
       {
-        message: "Resume and cover letter tailored successfully using OpenAI",
+        message: "Resume and cover letter tailored successfully",
         tailoredResume: tailoredResumeText,
         coverLetter: coverLetterText,
         atsScore: aiOutput.atsScore,
+        isAnonymous: isAnonymous, // Return this to frontend
       },
       { status: 200 }
     );

@@ -47,9 +47,11 @@ const defaultStyles: TemplateStyles = {
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    if (!session || !session.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+
+    // ✅ ALLOW anonymous downloads - Remove the authentication check
+    // if (!session || !session.user) {
+    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    // }
 
     const { tailoredResumeText, coverLetterText, documentType, templateId } =
       await req.json();

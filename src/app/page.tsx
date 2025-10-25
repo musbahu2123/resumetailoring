@@ -1,10 +1,10 @@
-// In your landing page component - Remove the local SignInModal function and import the component
+// In your landing page component
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Lock, Upload, FileText, Sparkles, Target } from "lucide-react";
+import { Lock, Upload, FileText, Sparkles, Target, Crown } from "lucide-react";
 
 import HeroSection from "@/components/HeroSection";
 import UploadSection from "@/components/UploadSection";
@@ -15,7 +15,27 @@ import ExpertAdviceSection from "@/components/ExpertAdviceSection";
 import PricingSection from "@/components/PricingSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import Loader from "@/components/Loader";
-import SignInModal from "@/components/SignInModal"; // Import the actual component
+import SignInModal from "@/components/SignInModal";
+
+// ✅ Utility function to generate and manage anonymous ID
+const getAnonymousId = () => {
+  if (typeof window === "undefined") return null;
+
+  let anonymousId = localStorage.getItem("anonymousId");
+  if (!anonymousId) {
+    // Generate a simple UUID-like ID
+    anonymousId =
+      "anon_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("anonymousId", anonymousId);
+  }
+  return anonymousId;
+};
+
+// ✅ Check if free generation was used
+const hasUsedFreeGeneration = () => {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem("freeGenerationUsed") === "true";
+};
 
 export default function LandingPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -29,6 +49,7 @@ export default function LandingPage() {
     tailoredResume: string;
     coverLetter: string;
     atsScore: number;
+    isAnonymous?: boolean;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,9 +59,11 @@ export default function LandingPage() {
     "build" | "docx" | "pdf" | "paste"
   >();
 
-  // --- Start Retailor Fix ---
+  // ✅ NEW: Track anonymous state
+  const [isAnonymousUser, setIsAnonymousUser] = useState(false);
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
 
-  // ✅ Alternative: Even More Robust Retailor Detection
+  // --- Start Retailor Fix ---
   useEffect(() => {
     const checkRetailorParams = () => {
       if (typeof window === "undefined") return;
@@ -52,14 +75,12 @@ export default function LandingPage() {
       const encoding = urlParams.get("encoding");
 
       if (retailor && resumeTextParam && source === "documents") {
-        // Use double setTimeout to ensure React lifecycle is complete
         setTimeout(() => {
           setTimeout(() => {
             try {
               let decodedResume;
 
               if (encoding === "base64") {
-                // Safe Base64 decoding for UTF-8
                 decodedResume = decodeURIComponent(
                   atob(resumeTextParam)
                     .split("")
@@ -70,7 +91,6 @@ export default function LandingPage() {
                     .join("")
                 );
               } else {
-                // Fallback for raw URI encoding
                 try {
                   decodedResume = decodeURIComponent(resumeTextParam);
                 } catch (uriError) {
@@ -83,7 +103,6 @@ export default function LandingPage() {
               setForceActiveTab("paste");
               setRetailorSuccess(true);
 
-              // Clear URL after everything is settled (1000ms delay for user to see success message)
               setTimeout(() => {
                 window.history.replaceState({}, "", window.location.pathname);
               }, 1000);
@@ -94,27 +113,40 @@ export default function LandingPage() {
               );
               setForceActiveTab("paste");
             }
-          }, 50); // 50ms ensures a slight delay after the first microtask
-        }, 0); // Runs as a microtask after initial render
+          }, 50);
+        }, 0);
       }
     };
 
     checkRetailorParams();
   }, []);
 
-  // ✅ Debug Helper
+  // ✅ FIXED: Check authentication status properly
   useEffect(() => {
-    // Only log if one of the retailor states is set
-    if (forceActiveTab || retailorSuccess || resumeText) {
-      console.log("Retailor State Debug:", {
-        resumeText: resumeText ? resumeText.substring(0, 50) + "..." : "N/A",
-        forceActiveTab,
-        retailorSuccess,
-      });
-    }
-  }, [resumeText, forceActiveTab, retailorSuccess]);
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch("/api/auth/session");
+        const session = await response.json();
 
-  // --- End Retailor Fix ---
+        if (session && session.user) {
+          setIsLoggedIn(true);
+          // Clear anonymous tracking when user is logged in
+          localStorage.removeItem("freeGenerationUsed");
+          localStorage.removeItem("anonymousId");
+          setIsAnonymousUser(false);
+        } else {
+          setIsLoggedIn(false);
+          setIsAnonymousUser(!hasUsedFreeGeneration());
+        }
+      } catch (error) {
+        console.error("Error checking auth status:", error);
+        setIsLoggedIn(false);
+        setIsAnonymousUser(!hasUsedFreeGeneration());
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
 
   const handleSetResumeFile = (file: File | null) => {
     setResumeFile(file);
@@ -130,11 +162,13 @@ export default function LandingPage() {
     }
   };
 
+  // ✅ UPDATED: Handle form submission with anonymous support
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
     setResults(null);
+    setShowSignupPrompt(false);
 
     if (!jobDescriptionText) {
       setError("Please provide a job description.");
@@ -143,35 +177,68 @@ export default function LandingPage() {
     }
 
     try {
+      const anonymousId = getAnonymousId();
       const formData = new FormData();
       formData.append("jobDescriptionText", jobDescriptionText);
+
       if (resumeFile) {
         formData.append("resumeFile", resumeFile);
       } else if (resumeText) {
         formData.append("resumeText", resumeText);
       }
 
+      // ✅ Add anonymous ID to headers if user is not logged in
+      const headers: HeadersInit = {};
+      if (!isLoggedIn && anonymousId) {
+        headers["x-anonymous-id"] = anonymousId;
+      }
+
       const uploadResponse = await fetch("/api/upload", {
         method: "POST",
         body: formData,
+        headers,
       });
 
       const uploadData = await uploadResponse.json();
 
       if (!uploadResponse.ok) {
+        // Handle free generation limit
+        if (uploadResponse.status === 402) {
+          setError("Free generation used. Please sign up for more credits.");
+          setIsLoading(false);
+          return;
+        }
         throw new Error(uploadData.message || "Failed to upload data.");
+      }
+
+      // ✅ Prepare tailor request with anonymous ID if needed
+      const tailorBody: any = { jobId: uploadData.jobId };
+      if (!isLoggedIn && anonymousId) {
+        tailorBody.anonymousId = anonymousId;
       }
 
       const tailorResponse = await fetch("/api/tailor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId: uploadData.jobId }),
+        body: JSON.stringify(tailorBody),
       });
 
       const tailorData = await tailorResponse.json();
 
       if (!tailorResponse.ok) {
+        // Handle free generation limit in tailor step
+        if (tailorResponse.status === 402) {
+          setError("Free generation used. Please sign up for more credits.");
+          setIsLoading(false);
+          return;
+        }
         throw new Error(tailorData.message || "Failed to tailor resume.");
+      }
+
+      // ✅ Mark free generation as used for anonymous users
+      if (!isLoggedIn && tailorData.isAnonymous) {
+        localStorage.setItem("freeGenerationUsed", "true");
+        setIsAnonymousUser(false);
       }
 
       setResults(tailorData);
@@ -187,6 +254,7 @@ export default function LandingPage() {
     }
   };
 
+  // ✅ FIXED: Download handlers - REMOVED authentication blocking
   const handleDownloadResume = async (templateId: string) => {
     if (!results) {
       setError("No resume to download. Please generate it first.");
@@ -281,13 +349,23 @@ export default function LandingPage() {
 
   const isButtonDisabled = isLoading || !jobDescriptionText;
 
+  // ✅ FIXED: Sign in handler with proper state updates
   const handleSignIn = () => {
     setIsLoggedIn(true);
     setIsModalOpen(false);
+    setShowSignupPrompt(false);
+    // Clear anonymous tracking when user signs in
+    localStorage.removeItem("freeGenerationUsed");
+    localStorage.removeItem("anonymousId");
+    setIsAnonymousUser(false);
   };
 
   const handleSignOut = () => {
     setIsLoggedIn(false);
+    // Reset anonymous tracking on sign out
+    localStorage.removeItem("freeGenerationUsed");
+    localStorage.removeItem("anonymousId");
+    setIsAnonymousUser(true);
   };
 
   return (
@@ -343,6 +421,18 @@ export default function LandingPage() {
               scratch - we'll create the perfect application for any job
               description.
             </p>
+
+            {/* ✅ FIXED: Free Generation Indicator - Only show for non-logged in users */}
+            {!isLoggedIn && (
+              <div className="mt-4 inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full border border-blue-200">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  {isAnonymousUser
+                    ? "No sign up required"
+                    : "Free Generation Used - Sign Up for More"}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Feature Cards */}
@@ -412,7 +502,12 @@ export default function LandingPage() {
                   ) : (
                     <span className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5" />
-                      Create Perfect Application
+                      {/* ✅ FIXED: Button text logic */}
+                      {isLoggedIn
+                        ? "Create Perfect Application"
+                        : isAnonymousUser
+                        ? "Create Perfect Application"
+                        : "Sign Up to Generate"}
                     </span>
                   )}
                 </Button>
@@ -434,6 +529,22 @@ export default function LandingPage() {
                     based on the job description.
                   </p>
                 )}
+
+                {/* ✅ FIXED: Only show signup CTA for non-logged in users who used free generation */}
+                {!isLoggedIn && !isAnonymousUser && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                    <p className="text-blue-700 text-sm">
+                      <strong>Free generation used!</strong> Sign up to get 10
+                      free credits and unlock unlimited generations.
+                    </p>
+                    <Button
+                      onClick={() => setIsModalOpen(true)}
+                      className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-6"
+                    >
+                      Sign Up for Free Credits
+                    </Button>
+                  </div>
+                )}
               </div>
             </form>
           ) : (
@@ -441,7 +552,14 @@ export default function LandingPage() {
               results={results}
               onDownloadResume={handleDownloadResume}
               onDownloadCoverLetter={handleDownloadCoverLetter}
-              onReset={() => setResults(null)}
+              onReset={() => {
+                setResults(null);
+                setShowSignupPrompt(false);
+              }}
+              // ✅ NEW: Pass authentication status to ResultsSection
+              isLoggedIn={isLoggedIn}
+              isAnonymousResult={results.isAnonymous || false}
+              onSignIn={() => setIsModalOpen(true)}
             />
           )}
         </div>
@@ -463,7 +581,11 @@ export default function LandingPage() {
       </section>
 
       {/* Use the same SignInModal component as the navbar */}
-      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SignInModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSignIn={handleSignIn}
+      />
     </>
   );
 }

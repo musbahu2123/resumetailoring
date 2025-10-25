@@ -127,7 +127,7 @@ export default function HeroSection({
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>Free forever - no credit card required</span>
+                <span>No- sign up required</span>
               </div>
             </div>
           </div>
