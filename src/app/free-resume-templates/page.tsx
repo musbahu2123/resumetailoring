@@ -5,7 +5,7 @@ import FreeResumeTemplatesClient from "./FreeResumeTemplatesClient";
 export const metadata: Metadata = {
   title: "Free ATS Resume Templates - Professional Designs 2025",
   description:
-    "🎯 Download Free ATS-Optimized Resume Templates - Professional designs that pass automated screening. Works with AI builder. Instant access.",
+    "🎯 Download Free ATS-Optimized Resume Templates for 2025. Professional designs that pass automated screening + work with AI builder. Get interviews faster.",
   keywords: [
     "free resume templates",
     "ATS resume templates",
