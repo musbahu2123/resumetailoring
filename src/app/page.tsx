@@ -1,4 +1,4 @@
-// In your landing page component
+// In your landing page component - Complete with minimal fixes
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
@@ -369,7 +369,8 @@ export default function LandingPage() {
   };
 
   return (
-    <>
+    // ✅ ONLY ADD THIS: overflow-x-hidden to prevent horizontal scrolling
+    <div className="overflow-x-hidden">
       <HeroSection
         isLoggedIn={isLoggedIn}
         onSignIn={() => setIsModalOpen(true)}
@@ -404,12 +405,14 @@ export default function LandingPage() {
       )}
 
       {/* Main Form Section with Gradient Background */}
+      {/* ✅ KEEP ORIGINAL: Remove max-w-full and overflow-hidden */}
       <section
         id="builder"
         className="relative py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div>
 
+        {/* ✅ KEEP ORIGINAL: Remove w-full */}
         <div className="container mx-auto max-w-6xl relative z-10">
           {/* Header Section */}
           <div className="text-center mb-12">
@@ -435,7 +438,7 @@ export default function LandingPage() {
             )}
           </div>
 
-          {/* Feature Cards */}
+          {/* Feature Cards - ORIGINAL DESIGN */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 text-center">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -502,12 +505,24 @@ export default function LandingPage() {
                   ) : (
                     <span className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5" />
-                      {/* ✅ FIXED: Button text logic */}
-                      {isLoggedIn
-                        ? "Create Perfect Application"
-                        : isAnonymousUser
-                        ? "Create Perfect Application"
-                        : "Sign Up to Generate"}
+                      {/* ✅ UPDATED: Responsive button text */}
+                      {isLoggedIn ? (
+                        <>
+                          <span className="hidden sm:inline">
+                            Create Perfect Application
+                          </span>
+                          <span className="sm:hidden">Create Application</span>
+                        </>
+                      ) : isAnonymousUser ? (
+                        <>
+                          <span className="hidden sm:inline">
+                            Create Perfect Application
+                          </span>
+                          <span className="sm:hidden">Create Application</span>
+                        </>
+                      ) : (
+                        "Sign Up to Generate"
+                      )}
                     </span>
                   )}
                 </Button>
@@ -586,6 +601,6 @@ export default function LandingPage() {
         onClose={() => setIsModalOpen(false)}
         onSignIn={handleSignIn}
       />
-    </>
+    </div>
   );
 }

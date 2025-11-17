@@ -21,11 +21,26 @@
   --font-body: var(--font-geist-sans), "sans-serif";
 }
 
+/* CRITICAL FIX: Add these viewport constraints */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure all elements respect box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 /* Apply the custom background and font to the body */
 body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
   font-family: var(--font-body);
+  width: 100%;
+  position: relative;
 }
 
 /* This is the new Shadcn/UI typography configuration */
@@ -33,3 +48,8 @@ h1 { @apply text-4xl font-bold; }
 h2 { @apply text-2xl font-semibold; }
 h3 { @apply text-xl font-medium; }
 p { @apply leading-relaxed; }
+
+/* Optional: Add smooth scrolling for better UX */
+html {
+  scroll-behavior: smooth;
+}

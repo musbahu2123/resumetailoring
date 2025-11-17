@@ -1,4 +1,4 @@
-// components/UploadSection.tsx - Updated with external tab control
+// components/UploadSection.tsx - Updated with responsive tab labels
 "use client";
 import { useState, useEffect } from "react";
 import {
@@ -85,7 +85,7 @@ export default function UploadSection({
           <div className="flex border-b">
             <button
               type="button"
-              className={`px-4 py-2 font-medium flex items-center gap-1 ${
+              className={`px-3 sm:px-4 py-2 font-medium flex items-center gap-1 ${
                 activeTab === "build"
                   ? "border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]"
                   : "text-gray-600"
@@ -94,7 +94,9 @@ export default function UploadSection({
             >
               <Wand2 size={16} className="text-purple-500" />
               <span className="relative">
-                Build Resume
+                {/* Responsive label */}
+                <span className="hidden sm:inline">Build Resume</span>
+                <span className="sm:hidden">Build</span>
                 <span className="absolute -top-1 -right-3">
                   <span className="relative flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
@@ -105,36 +107,42 @@ export default function UploadSection({
             </button>
             <button
               type="button"
-              className={`px-4 py-2 font-medium ${
+              className={`px-3 sm:px-4 py-2 font-medium ${
                 activeTab === "docx"
                   ? "border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]"
                   : "text-gray-600"
               }`}
               onClick={() => setActiveTab("docx")}
             >
-              DOCX Upload
+              {/* Responsive label */}
+              <span className="hidden sm:inline">DOCX Upload</span>
+              <span className="sm:hidden">DOCX</span>
             </button>
             <button
               type="button"
-              className={`px-4 py-2 font-medium ${
+              className={`px-3 sm:px-4 py-2 font-medium ${
                 activeTab === "pdf"
                   ? "border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]"
                   : "text-gray-600"
               }`}
               onClick={() => setActiveTab("pdf")}
             >
-              PDF Upload
+              {/* Responsive label */}
+              <span className="hidden sm:inline">PDF Upload</span>
+              <span className="sm:hidden">PDF</span>
             </button>
             <button
               type="button"
-              className={`px-4 py-2 font-medium ${
+              className={`px-3 sm:px-4 py-2 font-medium ${
                 activeTab === "paste"
                   ? "border-b-2 border-[var(--color-primary)] text-[var(--color-primary)]"
                   : "text-gray-600"
               }`}
               onClick={() => setActiveTab("paste")}
             >
-              Paste Text
+              {/* Responsive label */}
+              <span className="hidden sm:inline">Paste Text</span>
+              <span className="sm:hidden">Text</span>
             </button>
           </div>
 
