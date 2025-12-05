@@ -1,4 +1,5 @@
-// In your landing page component - Complete with minimal fixes
+// In your landing page component (app/page.tsx) - SIMPLIFIED FIXED VERSION
+
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
@@ -9,7 +10,8 @@ import { Lock, Upload, FileText, Sparkles, Target, Crown } from "lucide-react";
 import HeroSection from "@/components/HeroSection";
 import UploadSection from "@/components/UploadSection";
 import JobDescriptionSection from "@/components/JobDescriptionSection";
-import ResultsSection from "@/components/ResultsSection";
+
+import ResumePreviewDashboard from "@/components/ResumePreviewDashboard";
 import FeaturesSection from "@/components/FeaturesSection";
 import ExpertAdviceSection from "@/components/ExpertAdviceSection";
 import PricingSection from "@/components/PricingSection";
@@ -23,7 +25,6 @@ const getAnonymousId = () => {
 
   let anonymousId = localStorage.getItem("anonymousId");
   if (!anonymousId) {
-    // Generate a simple UUID-like ID
     anonymousId =
       "anon_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
     localStorage.setItem("anonymousId", anonymousId);
@@ -63,6 +64,17 @@ export default function LandingPage() {
   const [isAnonymousUser, setIsAnonymousUser] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
 
+  // ✅ NEW: Handle enhanced resumes
+  const handleEnhancedResumeReady = (enhancedResumeText: string) => {
+    setResults({
+      tailoredResume: enhancedResumeText,
+      coverLetter: "",
+      atsScore: 90,
+      isAnonymous: !isLoggedIn,
+    });
+    setJobDescriptionText("");
+  };
+
   // --- Start Retailor Fix ---
   useEffect(() => {
     const checkRetailorParams = () => {
@@ -76,45 +88,40 @@ export default function LandingPage() {
 
       if (retailor && resumeTextParam && source === "documents") {
         setTimeout(() => {
-          setTimeout(() => {
-            try {
-              let decodedResume;
-
-              if (encoding === "base64") {
-                decodedResume = decodeURIComponent(
-                  atob(resumeTextParam)
-                    .split("")
-                    .map(
-                      (c) =>
-                        "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-                    )
-                    .join("")
-                );
-              } else {
-                try {
-                  decodedResume = decodeURIComponent(resumeTextParam);
-                } catch (uriError) {
-                  console.warn("URI decode failed, using raw text");
-                  decodedResume = resumeTextParam;
-                }
-              }
-
-              setResumeText(decodedResume);
-              setForceActiveTab("paste");
-              setRetailorSuccess(true);
-
-              setTimeout(() => {
-                window.history.replaceState({}, "", window.location.pathname);
-              }, 1000);
-            } catch (error) {
-              console.error("Error processing retailor resume:", error);
-              setResumeText(
-                "Error loading resume. Please paste your resume manually."
+          try {
+            let decodedResume;
+            if (encoding === "base64") {
+              decodedResume = decodeURIComponent(
+                atob(resumeTextParam)
+                  .split("")
+                  .map(
+                    (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+                  )
+                  .join("")
               );
-              setForceActiveTab("paste");
+            } else {
+              try {
+                decodedResume = decodeURIComponent(resumeTextParam);
+              } catch (uriError) {
+                decodedResume = resumeTextParam;
+              }
             }
-          }, 50);
-        }, 0);
+
+            setResumeText(decodedResume);
+            setForceActiveTab("paste");
+            setRetailorSuccess(true);
+
+            setTimeout(() => {
+              window.history.replaceState({}, "", window.location.pathname);
+            }, 1000);
+          } catch (error) {
+            console.error("Error processing retailor resume:", error);
+            setResumeText(
+              "Error loading resume. Please paste your resume manually."
+            );
+            setForceActiveTab("paste");
+          }
+        }, 50);
       }
     };
 
@@ -130,7 +137,6 @@ export default function LandingPage() {
 
         if (session && session.user) {
           setIsLoggedIn(true);
-          // Clear anonymous tracking when user is logged in
           localStorage.removeItem("freeGenerationUsed");
           localStorage.removeItem("anonymousId");
           setIsAnonymousUser(false);
@@ -162,22 +168,32 @@ export default function LandingPage() {
     }
   };
 
-  // ✅ UPDATED: Handle form submission with anonymous support
+  // ✅ SIMPLIFIED: Handle form submission - ONLY full tailoring
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    // ✅ REQUIRE both job description AND resume content
+    if (!jobDescriptionText) {
+      setError("Please provide a job description to tailor your application.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!resumeText && !resumeFile) {
+      setError("Please provide your resume content to tailor for the job.");
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setResults(null);
     setShowSignupPrompt(false);
 
-    if (!jobDescriptionText) {
-      setError("Please provide a job description.");
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const anonymousId = getAnonymousId();
+
+      // ✅ ONLY full tailoring flow
       const formData = new FormData();
       formData.append("jobDescriptionText", jobDescriptionText);
 
@@ -187,7 +203,6 @@ export default function LandingPage() {
         formData.append("resumeText", resumeText);
       }
 
-      // ✅ Add anonymous ID to headers if user is not logged in
       const headers: HeadersInit = {};
       if (!isLoggedIn && anonymousId) {
         headers["x-anonymous-id"] = anonymousId;
@@ -202,7 +217,6 @@ export default function LandingPage() {
       const uploadData = await uploadResponse.json();
 
       if (!uploadResponse.ok) {
-        // Handle free generation limit
         if (uploadResponse.status === 402) {
           setError("Free generation used. Please sign up for more credits.");
           setIsLoading(false);
@@ -211,7 +225,6 @@ export default function LandingPage() {
         throw new Error(uploadData.message || "Failed to upload data.");
       }
 
-      // ✅ Prepare tailor request with anonymous ID if needed
       const tailorBody: any = { jobId: uploadData.jobId };
       if (!isLoggedIn && anonymousId) {
         tailorBody.anonymousId = anonymousId;
@@ -226,7 +239,6 @@ export default function LandingPage() {
       const tailorData = await tailorResponse.json();
 
       if (!tailorResponse.ok) {
-        // Handle free generation limit in tailor step
         if (tailorResponse.status === 402) {
           setError("Free generation used. Please sign up for more credits.");
           setIsLoading(false);
@@ -235,7 +247,6 @@ export default function LandingPage() {
         throw new Error(tailorData.message || "Failed to tailor resume.");
       }
 
-      // ✅ Mark free generation as used for anonymous users
       if (!isLoggedIn && tailorData.isAnonymous) {
         localStorage.setItem("freeGenerationUsed", "true");
         setIsAnonymousUser(false);
@@ -254,10 +265,13 @@ export default function LandingPage() {
     }
   };
 
-  // ✅ FIXED: Download handlers - REMOVED authentication blocking
-  const handleDownloadResume = async (templateId: string) => {
+  // ✅ UPDATED: Download handler that accepts both templateId and documentType
+  const handleDownload = async (
+    templateId: string,
+    documentType: "resume" | "coverLetter" = "resume"
+  ) => {
     if (!results) {
-      setError("No resume to download. Please generate it first.");
+      setError(`No ${documentType} to download. Please generate it first.`);
       return;
     }
 
@@ -265,7 +279,7 @@ export default function LandingPage() {
       const downloadData = {
         tailoredResumeText: results.tailoredResume,
         coverLetterText: results.coverLetter,
-        documentType: "resume",
+        documentType: documentType,
         templateId,
         format: "pdf",
       };
@@ -279,18 +293,26 @@ export default function LandingPage() {
       });
 
       if (!downloadResponse.ok) {
-        throw new Error("Failed to download resume.");
+        throw new Error(`Failed to download ${documentType}.`);
       }
 
       const blob = await downloadResponse.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "tailored-resume.pdf";
+
+      const filename =
+        documentType === "resume" ? "tailored-resume.pdf" : "cover-letter.pdf";
+      link.download = filename;
+
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+
+      console.log(
+        `✅ Successfully downloaded ${documentType} with template: ${templateId}`
+      );
     } catch (err) {
       console.error("Download Error:", err);
       setError(
@@ -301,60 +323,29 @@ export default function LandingPage() {
     }
   };
 
-  const handleDownloadCoverLetter = async (templateId: string) => {
-    if (!results) {
-      setError("No cover letter to download. Please generate it first.");
-      return;
+  // ✅ SIMPLIFIED: Button disabled state - requires BOTH job description AND resume
+  const isButtonDisabled =
+    isLoading || !jobDescriptionText || (!resumeText && !resumeFile);
+
+  // ✅ SIMPLIFIED: Button text - always the same for main button
+  const getButtonText = () => {
+    if (isLoading) {
+      return "Tailoring Your Application...";
     }
 
-    try {
-      const downloadData = {
-        tailoredResumeText: results.tailoredResume,
-        coverLetterText: results.coverLetter,
-        documentType: "coverLetter",
-        templateId,
-        format: "pdf",
-      };
-
-      const downloadResponse = await fetch("/api/download", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(downloadData),
-      });
-
-      if (!downloadResponse.ok) {
-        throw new Error("Failed to download cover letter.");
-      }
-
-      const blob = await downloadResponse.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "cover-letter.pdf";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Download Error:", err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unknown error occurred during download."
-      );
+    if (!isLoggedIn && !isAnonymousUser) {
+      return "Sign Up to Generate";
     }
+
+    // ✅ ALWAYS show "Create Perfect Application" for the main button
+    return "Tailor Perfect Application";
   };
-
-  const isButtonDisabled = isLoading || !jobDescriptionText;
 
   // ✅ FIXED: Sign in handler with proper state updates
   const handleSignIn = () => {
     setIsLoggedIn(true);
     setIsModalOpen(false);
     setShowSignupPrompt(false);
-    // Clear anonymous tracking when user signs in
     localStorage.removeItem("freeGenerationUsed");
     localStorage.removeItem("anonymousId");
     setIsAnonymousUser(false);
@@ -362,14 +353,12 @@ export default function LandingPage() {
 
   const handleSignOut = () => {
     setIsLoggedIn(false);
-    // Reset anonymous tracking on sign out
     localStorage.removeItem("freeGenerationUsed");
     localStorage.removeItem("anonymousId");
     setIsAnonymousUser(true);
   };
 
   return (
-    // ✅ ONLY ADD THIS: overflow-x-hidden to prevent horizontal scrolling
     <div className="overflow-x-hidden">
       <HeroSection
         isLoggedIn={isLoggedIn}
@@ -404,15 +393,13 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* Main Form Section with Gradient Background */}
-      {/* ✅ KEEP ORIGINAL: Remove max-w-full and overflow-hidden */}
+      {/* Main Form Section */}
       <section
         id="builder"
         className="relative py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.1),rgba(255,255,255,0))]"></div>
 
-        {/* ✅ KEEP ORIGINAL: Remove w-full */}
         <div className="container mx-auto max-w-6xl relative z-10">
           {/* Header Section */}
           <div className="text-center mb-12">
@@ -425,7 +412,6 @@ export default function LandingPage() {
               description.
             </p>
 
-            {/* ✅ FIXED: Free Generation Indicator - Only show for non-logged in users */}
             {!isLoggedIn && (
               <div className="mt-4 inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full border border-blue-200">
                 <Sparkles className="w-4 h-4" />
@@ -438,7 +424,7 @@ export default function LandingPage() {
             )}
           </div>
 
-          {/* Feature Cards - ORIGINAL DESIGN */}
+          {/* Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 text-center">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -484,6 +470,11 @@ export default function LandingPage() {
                     setExtractedPdfText(text);
                   }}
                   forceActiveTab={forceActiveTab}
+                  isLoggedIn={isLoggedIn}
+                  onResumeReadyForJob={(resumeText) => {
+                    setResumeText(resumeText);
+                  }}
+                  onEnhancedResumeReady={handleEnhancedResumeReady}
                 />
                 <JobDescriptionSection
                   jobDescriptionText={jobDescriptionText}
@@ -500,29 +491,12 @@ export default function LandingPage() {
                   {isLoading ? (
                     <span className="flex items-center gap-2">
                       <Loader />
-                      Generating Your Resume...
+                      {getButtonText()}
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5" />
-                      {/* ✅ UPDATED: Responsive button text */}
-                      {isLoggedIn ? (
-                        <>
-                          <span className="hidden sm:inline">
-                            Create Perfect Application
-                          </span>
-                          <span className="sm:hidden">Create Application</span>
-                        </>
-                      ) : isAnonymousUser ? (
-                        <>
-                          <span className="hidden sm:inline">
-                            Create Perfect Application
-                          </span>
-                          <span className="sm:hidden">Create Application</span>
-                        </>
-                      ) : (
-                        "Sign Up to Generate"
-                      )}
+                      {getButtonText()}
                     </span>
                   )}
                 </Button>
@@ -538,14 +512,13 @@ export default function LandingPage() {
                   Your files are private and secure
                 </p>
 
-                {!resumeText && !resumeFile && (
+                {!resumeText && !resumeFile && !jobDescriptionText && (
                   <p className="text-sm text-blue-600 mt-3 bg-blue-50 p-2 rounded-lg">
                     💡 Don't have a resume? No problem! We'll build one for you
                     based on the job description.
                   </p>
                 )}
 
-                {/* ✅ FIXED: Only show signup CTA for non-logged in users who used free generation */}
                 {!isLoggedIn && !isAnonymousUser && (
                   <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
                     <p className="text-blue-700 text-sm">
@@ -563,24 +536,21 @@ export default function LandingPage() {
               </div>
             </form>
           ) : (
-            <ResultsSection
-              results={results}
-              onDownloadResume={handleDownloadResume}
-              onDownloadCoverLetter={handleDownloadCoverLetter}
-              onReset={() => {
+            <ResumePreviewDashboard
+              tailoredResume={results.tailoredResume}
+              coverLetter={results.coverLetter}
+              atsScore={results.atsScore}
+              onDownload={handleDownload}
+              onBack={() => {
                 setResults(null);
                 setShowSignupPrompt(false);
               }}
-              // ✅ NEW: Pass authentication status to ResultsSection
               isLoggedIn={isLoggedIn}
-              isAnonymousResult={results.isAnonymous || false}
-              onSignIn={() => setIsModalOpen(true)}
             />
           )}
         </div>
       </section>
 
-      {/* Features Section */}
       <section id="features">
         <FeaturesSection />
       </section>
@@ -588,14 +558,10 @@ export default function LandingPage() {
         <ExpertAdviceSection />
       </section>
 
-      {/* <PricingSection onSignIn={() => setIsModalOpen(true)} /> */}
-
-      {/* Testimonials Section */}
       <section id="testimonials">
         <TestimonialsSection />
       </section>
 
-      {/* Use the same SignInModal component as the navbar */}
       <SignInModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

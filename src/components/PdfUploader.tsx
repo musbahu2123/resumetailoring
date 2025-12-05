@@ -1,13 +1,15 @@
-// components/PdfUploader.tsx
+// components/PdfUploader.tsx (UPDATED WITH ENHANCE BUTTON)
 "use client";
 import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { FileUp, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileUp, Loader2, Wand2 } from "lucide-react";
 
 interface PdfUploaderProps {
   onPdfTextExtracted: (text: string) => void;
   onError: (message: string) => void;
+  onEnhanceResume?: (text: string) => void; // NEW: Enhance callback
 }
 
 // Import PDF.js types
@@ -20,8 +22,10 @@ declare global {
 export default function PdfUploader({
   onPdfTextExtracted,
   onError,
+  onEnhanceResume, // NEW: Enhance callback
 }: PdfUploaderProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [extractedText, setExtractedText] = useState(""); // NEW: Store extracted text
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePdfUpload = async (
@@ -31,6 +35,7 @@ export default function PdfUploader({
     if (!file) return;
 
     setIsProcessing(true);
+    setExtractedText(""); // Reset extracted text
 
     try {
       // Use CDN version to avoid import issues
@@ -76,6 +81,7 @@ export default function PdfUploader({
           );
         }
 
+        setExtractedText(fullText); // Store the extracted text
         onPdfTextExtracted(fullText);
       } catch (error) {
         console.error("PDF processing error:", error);
@@ -93,6 +99,18 @@ export default function PdfUploader({
     }
   };
 
+  // NEW: Handle enhance resume
+  const handleEnhanceResume = () => {
+    if (!extractedText.trim()) {
+      alert("Please upload and process a PDF first");
+      return;
+    }
+
+    if (onEnhanceResume) {
+      onEnhanceResume(extractedText);
+    }
+  };
+
   return (
     <Card className="shadow-md rounded-xl">
       <CardHeader>
@@ -101,7 +119,7 @@ export default function PdfUploader({
           <CardTitle>Upload PDF Resume</CardTitle>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <Input
           ref={fileInputRef}
           type="file"
@@ -110,10 +128,36 @@ export default function PdfUploader({
           disabled={isProcessing}
           className="p-2 border-2 border-dashed border-gray-300 rounded-xl"
         />
+
         {isProcessing && (
           <div className="flex items-center mt-2 text-sm text-blue-600">
             <Loader2 className="animate-spin mr-2" size={16} />
             Processing PDF...
+          </div>
+        )}
+
+        {/* NEW: Enhance Button after successful PDF extraction */}
+        {extractedText && !isProcessing && (
+          <div className="space-y-3">
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-700 text-center">
+                ✅ PDF processed successfully! {extractedText.length} characters
+                extracted.
+              </p>
+            </div>
+
+            <Button
+              onClick={handleEnhanceResume}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3"
+            >
+              <Wand2 size={18} />
+              🚀 Enhance Resume
+            </Button>
+
+            <p className="text-xs text-gray-500 text-center">
+              Enhance your resume with AI to optimize ats, formatting and
+              content
+            </p>
           </div>
         )}
       </CardContent>

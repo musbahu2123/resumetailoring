@@ -1,3 +1,4 @@
+//src/lib/templates/pdf-templates/creative-pdf.ts
 import jsPDF from "jspdf";
 import { parseContent, getSectionByType } from "../content-parser";
 import { TemplateStyles, TemplateType, ParsedContent } from "../types";
@@ -49,7 +50,7 @@ const generateCreativeResume = (
     titleColor: options?.titleColor || "#111827",
     sectionColor: options?.sectionColor || "#0D9488",
     textColor: options?.textColor || "#111827",
-    lineColor: options?.lineColor || "#0D9488", // FIXED: Use for underline bars
+    lineColor: options?.lineColor || "#0D9488",
     backgroundColor: options?.backgroundColor || "#0D9488",
     accentColor: options?.accentColor || "#4F46E5",
   };
@@ -257,19 +258,18 @@ const generateCreativeResume = (
   return doc;
 };
 
-// ===== CREATIVE COVER LETTER (Fixed missing argument) =====
+// ===== CREATIVE COVER LETTER =====
 const generateCreativeCoverLetter = (
   doc: jsPDF,
   title: string,
   content: string,
   options?: CreativeOptions
 ): jsPDF => {
-  // FIX: Added default contact info (options?.contact || "") and the missing 5th argument (jobDescriptionText) as an empty string ("") to match the utility function signature.
   formatCoverLetter(doc, content, title, options?.contact || "", "");
   return doc;
 };
 
-// ===== COMPLETELY FIXED Main Section Renderer =====
+// ===== FIXED Main Section Renderer with correct heading colors =====
 function renderMainSection(
   doc: jsPDF,
   header: string,
@@ -287,14 +287,14 @@ function renderMainSection(
     currentY = 50;
   }
 
-  // FIXED: Section Header with proper theme color
+  // FIXED: Section Header with SIDEBAR COLOR (not sectionColor)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.setTextColor(theme.sectionColor);
+  doc.setTextColor(theme.backgroundColor); // CHANGED: Use sidebar background color for section headers
   doc.text(header.toUpperCase(), x, currentY);
 
-  // FIXED: Underline bar with SIDEBAR COLOR (not lineColor)
-  doc.setFillColor(theme.backgroundColor); // FIXED: Use sidebar background color for underline bars
+  // FIXED: Underline bar with SIDEBAR COLOR
+  doc.setFillColor(theme.backgroundColor);
   doc.rect(x, currentY + 2, width * 0.4, 2, "F");
   currentY += 12;
 

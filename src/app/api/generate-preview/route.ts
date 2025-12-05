@@ -1,6 +1,5 @@
-//src/app/api/download/route.ts
+// app/api/generate-preview/route.ts
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import {
   generateClassicPdf,
   generateModernPdf,
@@ -10,7 +9,7 @@ import {
 import jsPDF from "jspdf";
 import { TemplateType, TemplateStyles } from "@/lib/templates/types";
 
-// --- Helper: extract name & contact from resume text ---
+// Helper: extract name & contact from resume text
 function extractHeader(content: string) {
   const lines = content
     .split(/\r?\n/)
@@ -27,7 +26,7 @@ function extractHeader(content: string) {
     // Look for contact info in first 3–4 lines
     const contactCandidates = lines
       .slice(1, 4)
-      .filter((line) => /(email|phone|linkedin|location)/i.test(line));
+      .filter((line) => /(email|phone|linkedin|location|@)/i.test(line));
 
     if (contactCandidates.length > 0) {
       contact = contactCandidates.join(" | ");
@@ -37,7 +36,6 @@ function extractHeader(content: string) {
   return { name, contact };
 }
 
-// Define default styles that match what all templates expect
 const defaultStyles: TemplateStyles = {
   titleColor: "#000000",
   sectionColor: "#000000",
@@ -47,62 +45,32 @@ const defaultStyles: TemplateStyles = {
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
+    const { content, templateId, documentType = "resume" } = await req.json();
 
-    const { tailoredResumeText, coverLetterText, documentType, templateId } =
-      await req.json();
-
-    if (
-      (!tailoredResumeText && !coverLetterText) ||
-      !templateId ||
-      !documentType
-    ) {
+    if (!content || !templateId) {
       return NextResponse.json(
-        {
-          message:
-            "Missing required document text, template ID, or document type",
-        },
+        { error: "Missing content or templateId" },
         { status: 400 }
       );
     }
 
-    // ✅ FIX: Use the correct content based on documentType
-    let content: string;
-    let filename: string;
+    console.log(
+      `Generating preview for ${documentType}, template: ${templateId}`
+    );
 
-    if (documentType === "resume") {
-      content = tailoredResumeText;
-      filename = "tailored-resume.pdf";
-    } else if (documentType === "coverLetter") {
-      content = coverLetterText;
-      filename = "cover-letter.pdf";
-    } else {
-      return NextResponse.json(
-        { message: "Invalid document type" },
-        { status: 400 }
-      );
-    }
-
-    if (!content) {
-      return NextResponse.json(
-        { message: `No ${documentType} content available to download` },
-        { status: 400 }
-      );
-    }
-
-    console.log(`Downloading ${documentType} with template: ${templateId}`);
-
-    // 📌 For resumes, extract name/contact instead of hardcoding
     let title = "Untitled";
     let contact = "";
 
+    // ✅ FIX: Handle different document types
     if (documentType === "resume") {
+      // For resumes, extract name and contact from content
       const header = extractHeader(content);
       title = header.name;
       contact = header.contact;
-    } else {
+    } else if (documentType === "coverLetter") {
+      // For cover letters, use a generic title
       title = "Cover Letter";
-      // For cover letters, extract contact info if available
+      // Extract contact info from the first few lines if available
       const lines = content.split("\n").filter((line) => line.trim());
       const contactLines = lines
         .slice(0, 3)
@@ -112,7 +80,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // Generate PDF document (pass documentType, name, and contact)
+    // Generate PDF with the correct document type
     const doc = generatePdfDoc(
       title,
       content,
@@ -121,27 +89,43 @@ export async function POST(req: Request) {
       contact
     );
 
-    // Convert to buffer
-    const pdfBuffer = Buffer.from(doc.output("arraybuffer"));
+    // Convert to base64
+    const pdfArrayBuffer = doc.output("arraybuffer");
+    const pdfBase64 = arrayBufferToBase64(pdfArrayBuffer);
 
-    const headers = new Headers();
-    headers.set("Content-Type", "application/pdf");
-    headers.set("Content-Disposition", `attachment; filename=${filename}`);
+    // console.log(
+    //   `${documentType} preview generated successfully for ${templateId}, size: ${pdfBase64.length} bytes`
+    // );
 
-    console.log(
-      `✅ Successfully generated ${documentType} download: ${filename}`
-    );
-    return new NextResponse(pdfBuffer, { status: 200, headers });
+    return NextResponse.json({
+      pdfData: pdfBase64,
+      templateId,
+      title,
+      documentType,
+    });
   } catch (error) {
-    console.error("Download API error:", error);
+    console.error("Preview generation error:", error);
     return NextResponse.json(
-      { message: "An internal server error occurred." },
+      {
+        error: `Failed to generate preview: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+      },
       { status: 500 }
     );
   }
 }
 
-// --- Helper function to select template ---
+// Helper function to convert ArrayBuffer to base64
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
 const generatePdfDoc = (
   title: string,
   content: string,
@@ -149,7 +133,6 @@ const generatePdfDoc = (
   documentType: TemplateType,
   contact?: string
 ): jsPDF => {
-  // Common options with all required TemplateStyles properties
   const commonOptions = {
     contact,
     documentType,

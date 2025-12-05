@@ -1,3 +1,4 @@
+//src/lib/templates/pdf-tempaltes/classic-pdf.ts
 import jsPDF from "jspdf";
 import { parseContent, getSectionByType } from "../content-parser";
 import { TemplateStyles, TemplateType, ParsedContent } from "../types";

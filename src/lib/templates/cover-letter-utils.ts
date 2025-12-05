@@ -1,3 +1,4 @@
+// src/lib/templates/cover-letter-utils
 import { jsPDF } from "jspdf";
 
 /**

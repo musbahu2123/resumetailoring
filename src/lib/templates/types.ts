@@ -1,10 +1,18 @@
-export type TemplateType = 'resume' | 'coverLetter';
-export type TemplateId = 'classic' | 'modern' | 'creative' | 'minimalist';
+//src/lib/templates/types
+export type TemplateType = "resume" | "coverLetter";
+export type TemplateId = "classic" | "modern" | "creative" | "minimalist";
 
 export interface TemplateSection {
   title: string;
   content: string[];
-  type: 'contact' | 'skill' | 'experience' | 'education' | 'summary' | 'project' | 'other';
+  type:
+    | "contact"
+    | "skill"
+    | "experience"
+    | "education"
+    | "summary"
+    | "project"
+    | "other";
 }
 
 export interface ParsedContent {
@@ -14,7 +22,7 @@ export interface ParsedContent {
 
 export interface TemplateStyles {
   titleColor: string;
-  sectionColor: string; 
+  sectionColor: string;
   textColor: string;
   lineColor: string;
   backgroundColor?: string;

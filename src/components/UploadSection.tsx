@@ -1,4 +1,4 @@
-// components/UploadSection.tsx - Updated with responsive tab labels
+// components/UploadSection.tsx - COMPLETE WITH WORKING DOCX ENHANCEMENT
 "use client";
 import { useState, useEffect } from "react";
 import {
@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FileUp, Wand2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileUp, Wand2, Upload, FileText, Loader2 } from "lucide-react";
 import PdfUploader from "./PdfUploader";
 import ResumeBuilderModal from "./ResumeBuilderModal";
 
@@ -20,8 +21,10 @@ interface UploadSectionProps {
   resumeText: string;
   setResumeText: (text: string) => void;
   onPdfTextExtracted: (text: string) => void;
-  // Add this for external tab control
   forceActiveTab?: "build" | "docx" | "pdf" | "paste";
+  isLoggedIn?: boolean;
+  onResumeReadyForJob?: (resumeText: string) => void;
+  onEnhancedResumeReady?: (resumeText: string) => void;
 }
 
 export default function UploadSection({
@@ -31,41 +34,140 @@ export default function UploadSection({
   setResumeText,
   onPdfTextExtracted,
   forceActiveTab,
+  isLoggedIn = false,
+  onResumeReadyForJob,
+  onEnhancedResumeReady,
 }: UploadSectionProps) {
   const [activeTab, setActiveTab] = useState<
     "build" | "docx" | "pdf" | "paste"
   >("build");
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+  const [docxContent, setDocxContent] = useState(""); // Store extracted DOCX content
+  const [isProcessingDocx, setIsProcessingDocx] = useState(false); // DOCX processing state
 
-  // If forceActiveTab is provided, use it and clear after use
   useEffect(() => {
     if (forceActiveTab) {
       setActiveTab(forceActiveTab);
-      // Don't clear forceActiveTab here - let parent component manage it
     }
   }, [forceActiveTab]);
 
-  const handleDocxUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // ENHANCE RESUME FUNCTION FOR ALL INPUT METHODS
+  const handleEnhanceResume = async (content: string) => {
+    if (!content.trim()) {
+      alert("Please provide resume content first");
+      return;
+    }
+
+    try {
+      const anonymousId = localStorage.getItem("anonymousId");
+
+      const response = await fetch("/api/enhance-resume", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeText: content,
+          anonymousId: !isLoggedIn ? anonymousId : undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 402) {
+          alert("Free enhancement used. Please sign up for more credits.");
+          return;
+        }
+        throw new Error(data.message || "Failed to enhance resume");
+      }
+
+      // Enhanced resume ready - go directly to ResultsSection
+      if (onEnhancedResumeReady) {
+        onEnhancedResumeReady(data.tailoredResume);
+      }
+    } catch (error) {
+      console.error("Enhancement error:", error);
+      alert("Failed to enhance resume. Please try again.");
+    }
+  };
+
+  // PROCESS DOCX FILE WITH TEXT EXTRACTION
+  const handleDocxUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
-    setResumeFile(file || null);
-    if (file) {
-      setResumeText(""); // Clear text when file is selected
+    if (!file) return;
+
+    setIsProcessingDocx(true);
+    setResumeFile(file);
+    setResumeText("");
+
+    try {
+      const formData = new FormData();
+      formData.append("resumeFile", file);
+      formData.append("jobDescriptionText", "temp"); // Required by your API
+
+      // Use your existing upload API to extract DOCX text
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to process DOCX file");
+      }
+
+      // Store the extracted text for enhancement
+      setDocxContent(
+        data.originalResumeText || "DOCX content extracted successfully"
+      );
+
+      // Also set it in the main resume text for consistency
+      setResumeText(data.originalResumeText || "");
+    } catch (error) {
+      console.error("DOCX processing error:", error);
+      alert(
+        "Failed to process DOCX file. Please try PDF or paste text instead."
+      );
+      setDocxContent("");
+    } finally {
+      setIsProcessingDocx(false);
     }
   };
 
   const handleTextPaste = (text: string) => {
     setResumeText(text);
     if (text) {
-      setResumeFile(null); // Clear file when text is pasted
+      setResumeFile(null);
     }
   };
 
+  // FLOW 1: Final Enhanced Resume (No Job Description)
   const handleResumeBuilt = (builtResumeText: string) => {
+    if (onEnhancedResumeReady) {
+      onEnhancedResumeReady(builtResumeText);
+    } else {
+      // Fallback: Old behavior (goes to paste tab)
+      setResumeText(builtResumeText);
+      setResumeFile(null);
+      setActiveTab("paste");
+    }
+    setIsBuilderOpen(false);
+  };
+
+  // FLOW 2: Ready for Job Tailoring (With Job Description)
+  const handleResumeReadyForJob = (builtResumeText: string) => {
     setResumeText(builtResumeText);
     setResumeFile(null);
     setIsBuilderOpen(false);
-    // Automatically switch to paste tab to show the built resume
     setActiveTab("paste");
+
+    if (onResumeReadyForJob) {
+      onResumeReadyForJob(builtResumeText);
+    }
   };
 
   return (
@@ -81,7 +183,7 @@ export default function UploadSection({
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {/* Tab Navigation - BUILD IS NOW FIRST */}
+          {/* Tab Navigation */}
           <div className="flex border-b">
             <button
               type="button"
@@ -94,7 +196,6 @@ export default function UploadSection({
             >
               <Wand2 size={16} className="text-purple-500" />
               <span className="relative">
-                {/* Responsive label */}
                 <span className="hidden sm:inline">Build Resume</span>
                 <span className="sm:hidden">Build</span>
                 <span className="absolute -top-1 -right-3">
@@ -114,7 +215,6 @@ export default function UploadSection({
               }`}
               onClick={() => setActiveTab("docx")}
             >
-              {/* Responsive label */}
               <span className="hidden sm:inline">DOCX Upload</span>
               <span className="sm:hidden">DOCX</span>
             </button>
@@ -127,7 +227,6 @@ export default function UploadSection({
               }`}
               onClick={() => setActiveTab("pdf")}
             >
-              {/* Responsive label */}
               <span className="hidden sm:inline">PDF Upload</span>
               <span className="sm:hidden">PDF</span>
             </button>
@@ -140,7 +239,6 @@ export default function UploadSection({
               }`}
               onClick={() => setActiveTab("paste")}
             >
-              {/* Responsive label */}
               <span className="hidden sm:inline">Paste Text</span>
               <span className="sm:hidden">Text</span>
             </button>
@@ -154,8 +252,8 @@ export default function UploadSection({
                 Build Your Resume From Scratch
               </h3>
               <p className="text-gray-600 mb-6">
-                Our AI-powered builder will help you create a professional
-                resume tailored for any job.
+                Create a professional resume, then choose to enhance it or
+                tailor it for a specific job.
               </p>
               <button
                 type="button"
@@ -168,22 +266,60 @@ export default function UploadSection({
           )}
 
           {activeTab === "docx" && (
-            <>
+            <div className="space-y-4">
               <Input
                 type="file"
                 accept=".docx,.doc"
                 className="p-2 border-2 border-dashed border-gray-300 rounded-xl"
                 onChange={handleDocxUpload}
+                disabled={isProcessingDocx}
               />
               <p className="text-sm text-center text-[var(--color-text-secondary)]">
                 Supports .docx and .doc files
               </p>
-              {resumeFile && (
-                <p className="text-sm text-green-600 text-center">
-                  Selected: {resumeFile.name}
+
+              {isProcessingDocx && (
+                <div className="flex items-center justify-center gap-2 py-4">
+                  <Loader2 className="animate-spin w-5 h-5 text-blue-600" />
+                  <span className="text-sm text-blue-600">
+                    Processing DOCX file...
+                  </span>
+                </div>
+              )}
+
+              {resumeFile && !isProcessingDocx && docxContent && (
+                <div className="space-y-4">
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-700 text-center">
+                      ✅ DOCX processed successfully! Ready for enhancement.
+                    </p>
+                    <p className="text-xs text-green-600 text-center mt-1">
+                      {docxContent.length} characters extracted
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={() => handleEnhanceResume(docxContent)}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3"
+                  >
+                    <Wand2 size={18} />
+                    🚀 Enhance Resume
+                  </Button>
+
+                  <p className="text-xs text-gray-500 text-center">
+                    Enhance your DOCX resume with AI to improve formatting and
+                    content
+                  </p>
+                </div>
+              )}
+
+              {resumeFile && !isProcessingDocx && !docxContent && (
+                <p className="text-sm text-red-600 text-center">
+                  Failed to extract text from DOCX. Please try again or use
+                  PDF/Paste.
                 </p>
               )}
-            </>
+            </div>
           )}
 
           {activeTab === "pdf" && (
@@ -196,16 +332,43 @@ export default function UploadSection({
               onError={(message) => {
                 console.error("PDF Error:", message);
               }}
+              onEnhanceResume={handleEnhanceResume}
             />
           )}
 
           {activeTab === "paste" && (
-            <Textarea
-              placeholder="Paste your resume content here"
-              className="h-64 rounded-xl"
-              value={resumeText}
-              onChange={(e) => handleTextPaste(e.target.value)}
-            />
+            <div className="space-y-4">
+              <Textarea
+                placeholder="Paste your resume content here"
+                className="h-64 rounded-xl"
+                value={resumeText}
+                onChange={(e) => handleTextPaste(e.target.value)}
+              />
+
+              {resumeText.trim() && (
+                <div className="space-y-3">
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-700 text-center">
+                      ✅ Text ready for enhancement ({resumeText.length}{" "}
+                      characters)
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={() => handleEnhanceResume(resumeText)}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3"
+                  >
+                    <Wand2 size={18} />
+                    🚀 Enhance Resume
+                  </Button>
+
+                  <p className="text-xs text-gray-500 text-center">
+                    Enhance your pasted resume with AI to improve formatting and
+                    content
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -214,6 +377,8 @@ export default function UploadSection({
         isOpen={isBuilderOpen}
         onClose={() => setIsBuilderOpen(false)}
         onResumeBuilt={handleResumeBuilt}
+        onTailorForJob={handleResumeReadyForJob}
+        isLoggedIn={isLoggedIn}
       />
     </>
   );
