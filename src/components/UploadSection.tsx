@@ -1,4 +1,4 @@
-// components/UploadSection.tsx - COMPLETE WITH WORKING DOCX ENHANCEMENT
+// components/UploadSection.tsx - UPDATED WITH ERROR HANDLING
 "use client";
 import { useState, useEffect } from "react";
 import {
@@ -25,7 +25,21 @@ interface UploadSectionProps {
   isLoggedIn?: boolean;
   onResumeReadyForJob?: (resumeText: string) => void;
   onEnhancedResumeReady?: (resumeText: string) => void;
+  onEnhanceError?: (errorMessage: string) => void; // ✅ ADDED PROP
 }
+
+// ✅ Utility function to get anonymous ID
+const getAnonymousId = () => {
+  if (typeof window === "undefined") return null;
+
+  let anonymousId = localStorage.getItem("anonymousId");
+  if (!anonymousId) {
+    anonymousId =
+      "anon_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("anonymousId", anonymousId);
+  }
+  return anonymousId;
+};
 
 export default function UploadSection({
   resumeFile,
@@ -37,13 +51,15 @@ export default function UploadSection({
   isLoggedIn = false,
   onResumeReadyForJob,
   onEnhancedResumeReady,
+  onEnhanceError, // ✅ ADDED PROP
 }: UploadSectionProps) {
   const [activeTab, setActiveTab] = useState<
     "build" | "docx" | "pdf" | "paste"
   >("build");
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
-  const [docxContent, setDocxContent] = useState(""); // Store extracted DOCX content
-  const [isProcessingDocx, setIsProcessingDocx] = useState(false); // DOCX processing state
+  const [docxContent, setDocxContent] = useState("");
+  const [isProcessingDocx, setIsProcessingDocx] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false); // ✅ ADDED LOADING STATE
 
   useEffect(() => {
     if (forceActiveTab) {
@@ -51,15 +67,17 @@ export default function UploadSection({
     }
   }, [forceActiveTab]);
 
-  // ENHANCE RESUME FUNCTION FOR ALL INPUT METHODS
+  // ✅ UPDATED: ENHANCE RESUME FUNCTION WITH PROPER ERROR HANDLING
   const handleEnhanceResume = async (content: string) => {
     if (!content.trim()) {
       alert("Please provide resume content first");
       return;
     }
 
+    setIsEnhancing(true);
+
     try {
-      const anonymousId = localStorage.getItem("anonymousId");
+      const anonymousId = getAnonymousId();
 
       const response = await fetch("/api/enhance-resume", {
         method: "POST",
@@ -76,23 +94,36 @@ export default function UploadSection({
 
       if (!response.ok) {
         if (response.status === 402) {
-          alert("Free enhancement used. Please sign up for more credits.");
+          // ✅ HANDLE CREDIT ERRORS PROPERLY
+          if (onEnhanceError) {
+            onEnhanceError(data.message);
+          } else {
+            alert(data.message || "Sign up to get free generations");
+          }
           return;
         }
         throw new Error(data.message || "Failed to enhance resume");
       }
 
-      // Enhanced resume ready - go directly to ResultsSection
+      // Enhanced resume ready
       if (onEnhancedResumeReady) {
         onEnhancedResumeReady(data.tailoredResume);
       }
     } catch (error) {
       console.error("Enhancement error:", error);
-      alert("Failed to enhance resume. Please try again.");
+      if (onEnhanceError) {
+        onEnhanceError(
+          error instanceof Error ? error.message : "Failed to enhance resume"
+        );
+      } else {
+        alert("Failed to enhance resume. Please try again.");
+      }
+    } finally {
+      setIsEnhancing(false);
     }
   };
 
-  // PROCESS DOCX FILE WITH TEXT EXTRACTION
+  // ✅ UPDATED: PROCESS DOCX FILE WITH ERROR HANDLING
   const handleDocxUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -106,32 +137,46 @@ export default function UploadSection({
     try {
       const formData = new FormData();
       formData.append("resumeFile", file);
-      formData.append("jobDescriptionText", "temp"); // Required by your API
+      formData.append("jobDescriptionText", "temp");
 
-      // Use your existing upload API to extract DOCX text
+      const anonymousId = getAnonymousId();
+      const headers: HeadersInit = {};
+      if (!isLoggedIn && anonymousId) {
+        headers["x-anonymous-id"] = anonymousId;
+      }
+
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
+        headers,
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 402) {
+          // ✅ HANDLE ANONYMOUS CREDIT USED
+          if (onEnhanceError) {
+            onEnhanceError(data.message);
+          }
+          return;
+        }
         throw new Error(data.message || "Failed to process DOCX file");
       }
 
-      // Store the extracted text for enhancement
-      setDocxContent(
-        data.originalResumeText || "DOCX content extracted successfully"
-      );
-
-      // Also set it in the main resume text for consistency
+      setDocxContent(data.originalResumeText || "");
       setResumeText(data.originalResumeText || "");
     } catch (error) {
       console.error("DOCX processing error:", error);
-      alert(
-        "Failed to process DOCX file. Please try PDF or paste text instead."
-      );
+      if (onEnhanceError) {
+        onEnhanceError(
+          error instanceof Error ? error.message : "Failed to process DOCX file"
+        );
+      } else {
+        alert(
+          "Failed to process DOCX file. Please try PDF or paste text instead."
+        );
+      }
       setDocxContent("");
     } finally {
       setIsProcessingDocx(false);
@@ -145,12 +190,10 @@ export default function UploadSection({
     }
   };
 
-  // FLOW 1: Final Enhanced Resume (No Job Description)
   const handleResumeBuilt = (builtResumeText: string) => {
     if (onEnhancedResumeReady) {
       onEnhancedResumeReady(builtResumeText);
     } else {
-      // Fallback: Old behavior (goes to paste tab)
       setResumeText(builtResumeText);
       setResumeFile(null);
       setActiveTab("paste");
@@ -158,7 +201,6 @@ export default function UploadSection({
     setIsBuilderOpen(false);
   };
 
-  // FLOW 2: Ready for Job Tailoring (With Job Description)
   const handleResumeReadyForJob = (builtResumeText: string) => {
     setResumeText(builtResumeText);
     setResumeFile(null);
@@ -300,10 +342,20 @@ export default function UploadSection({
 
                   <Button
                     onClick={() => handleEnhanceResume(docxContent)}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3"
+                    disabled={isEnhancing}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 disabled:opacity-70"
                   >
-                    <Wand2 size={18} />
-                    🚀 Enhance Resume
+                    {isEnhancing ? (
+                      <>
+                        <Loader2 className="animate-spin w-5 h-5" />
+                        Enhancing...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 size={18} />
+                        🚀 Enhance Resume
+                      </>
+                    )}
                   </Button>
 
                   <p className="text-xs text-gray-500 text-center">
@@ -333,6 +385,8 @@ export default function UploadSection({
                 console.error("PDF Error:", message);
               }}
               onEnhanceResume={handleEnhanceResume}
+              onEnhanceError={onEnhanceError} // ✅ PASS ERROR HANDLER TO PDFUPLOADER
+              isLoggedIn={isLoggedIn}
             />
           )}
 
@@ -356,10 +410,20 @@ export default function UploadSection({
 
                   <Button
                     onClick={() => handleEnhanceResume(resumeText)}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3"
+                    disabled={isEnhancing}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 disabled:opacity-70"
                   >
-                    <Wand2 size={18} />
-                    🚀 Enhance Resume
+                    {isEnhancing ? (
+                      <>
+                        <Loader2 className="animate-spin w-5 h-5" />
+                        Enhancing...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 size={18} />
+                        🚀 Enhance Resume
+                      </>
+                    )}
                   </Button>
 
                   <p className="text-xs text-gray-500 text-center">

@@ -9,7 +9,7 @@ const anonymousJobSchema = new mongoose.Schema({
   },
   jobDescriptionText: {
     type: String,
-    required: true,
+    default: "",
   },
   originalResumeText: {
     type: String,
@@ -21,11 +21,16 @@ const anonymousJobSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 86400, // Auto-delete after 24 hours
+    expires: 2592000, // 30 days (was 24 hours)
   },
-  usedFreeCredit: {
+  generationType: {
+    type: String,
+    enum: ["enhance", "tailor", null],
+    default: null,
+  },
+  isCompleted: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 });
 

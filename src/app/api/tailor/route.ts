@@ -1,10 +1,12 @@
+// app/api/tailor/route.ts
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { auth } from "@/auth";
 import Job from "@/models/job";
-import AnonymousJob from "@/models/AnonymousJob"; // Add this import
+import AnonymousJob from "@/models/AnonymousJob";
 import User from "@/models/user";
 import dbConnect from "@/lib/dbConnect";
+import { deductCredit } from "@/lib/credits";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
     const session = await auth();
     await dbConnect();
 
-    const { jobId, anonymousId } = await req.json(); // Add anonymousId
+    const { jobId, anonymousId } = await req.json();
 
     if (!jobId) {
       return NextResponse.json(
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
     let isAnonymous = false;
     let user = null;
 
-    // ✅ NEW: Handle anonymous users
+    // ✅ Handle anonymous users
     if (!session || !session.user) {
       if (!anonymousId) {
         return NextResponse.json(
@@ -48,20 +50,16 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: "Job not found" }, { status: 404 });
       }
 
-      // Check if this session already used their free credit
-      const existingCompletedJob = await AnonymousJob.findOne({
+      // ✅ Check if this anonymous session already used free credit
+      const existingGeneration = await AnonymousJob.findOne({
         sessionId: anonymousId,
-        tailoredResumeText: { $exists: true, $ne: "" },
+        generationType: { $in: ["enhance", "tailor"] },
       });
 
-      if (
-        existingCompletedJob &&
-        existingCompletedJob._id.toString() !== jobId
-      ) {
+      if (existingGeneration) {
         return NextResponse.json(
           {
-            message:
-              "Free generation already used. Please sign up for more credits.",
+            message: "Sign up to get free generations",
           },
           { status: 402 }
         );
@@ -69,7 +67,7 @@ export async function POST(req: Request) {
 
       isAnonymous = true;
     } else {
-      // ✅ EXISTING: Logged-in user flow (unchanged)
+      // ✅ Logged-in user flow
       job = await Job.findOne({ _id: jobId, userId: session.user.id });
       if (!job) {
         return NextResponse.json({ message: "Job not found" }, { status: 404 });
@@ -83,18 +81,25 @@ export async function POST(req: Request) {
         );
       }
 
-      if (user.credits <= 0) {
+      // ✅ Check and deduct credit for logged-in users
+      try {
+        await deductCredit(session.user.id);
+      } catch (creditError) {
         return NextResponse.json(
-          { message: "No credits remaining" },
+          {
+            message:
+              creditError instanceof Error
+                ? creditError.message
+                : "No credits remaining",
+          },
           { status: 402 }
         );
       }
     }
 
-    // ✅ USE GPT-4-TURBO WHICH SUPPORTS JSON MODE
+    // ✅ USE GPT-4-TURBO
     const model = "gpt-4-turbo";
 
-    // 🔥 EXACT SAME PROMPT - NO CHANGES
     const prompt = `
 You are an expert AI career coach and professional resume writer with 25+ years of recruiting experience at top tech companies like Google. 
 Your mission is to transform the ORIGINAL RESUME into a perfectly tailored version for the JOB DESCRIPTION that addresses key recruiter concerns.
@@ -188,7 +193,7 @@ ${job.jobDescriptionText}
 ${job.originalResumeText}
 `;
 
-    // ✅ OPENAI API CALL - FIXED VERSION
+    // ✅ OPENAI API CALL
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [
@@ -212,7 +217,7 @@ ${job.originalResumeText}
       throw new Error("OpenAI returned empty response");
     }
 
-    // ✅ SAME PARSING LOGIC - NO CHANGES
+    // ✅ Parse AI Response
     let aiOutput;
     try {
       let cleaned = rawOutput
@@ -229,7 +234,7 @@ ${job.originalResumeText}
     } catch (err) {
       console.error("❌ Failed to parse OpenAI response:", rawOutput);
 
-      // Fallback parsing (same as your existing logic)
+      // Fallback parsing
       try {
         const tailoredResumeMatch = rawOutput.match(
           /"tailoredResume"\s*:\s*"([\s\S]*?)"(?=,|\})/
@@ -259,7 +264,7 @@ ${job.originalResumeText}
       }
     }
 
-    // ✅ SAME CLEANUP LOGIC - NO CHANGES
+    // ✅ Clean up resume text
     let tailoredResumeText = (aiOutput.tailoredResume || "")
       .replace(/\\n/g, "\n")
       .replace(
@@ -274,7 +279,7 @@ ${job.originalResumeText}
       .replace(/ +\n/g, "\n")
       .trim();
 
-    // Force uppercase headers (compatible with content-parser)
+    // Force uppercase headers
     tailoredResumeText = tailoredResumeText.replace(
       /^(professional summary|summary|skills|experience|education|certifications|projects|contact)$/gim,
       (match: string) => match.toUpperCase()
@@ -292,25 +297,21 @@ ${job.originalResumeText}
       .replace(/\n{3,}/g, "\n\n")
       .trim();
 
-    // ✅ SAVE RESULTS based on user type
+    // ✅ Save results based on user type
     if (isAnonymous) {
-      // Save to AnonymousJob
+      // Save to AnonymousJob and mark as used
       job.tailoredResumeText = tailoredResumeText;
       job.coverLetterText = coverLetterText;
       job.atsScore = aiOutput.atsScore || 0;
+      job.generationType = "tailor";
+      job.isCompleted = true;
       await job.save();
     } else {
-      // ✅ EXISTING: Save to Job and deduct credit
+      // Save to Job
       job.tailoredResumeText = tailoredResumeText;
       job.coverLetterText = coverLetterText;
       job.atsScore = aiOutput.atsScore || 0;
       await job.save();
-
-      // Deduct credit only for authenticated users
-      if (user) {
-        user.credits = Math.max(user.credits - 1, 0);
-        await user.save();
-      }
     }
 
     return NextResponse.json(
@@ -319,7 +320,7 @@ ${job.originalResumeText}
         tailoredResume: tailoredResumeText,
         coverLetter: coverLetterText,
         atsScore: aiOutput.atsScore,
-        isAnonymous: isAnonymous, // Return this to frontend
+        isAnonymous: isAnonymous,
       },
       { status: 200 }
     );

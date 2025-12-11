@@ -1,12 +1,12 @@
-// src/app/api/enhance-resume/route.ts (NEW FILE)
+// app/api/enhance-resume/route.ts
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { auth } from "@/auth";
 import User from "@/models/user";
 import AnonymousJob from "@/models/AnonymousJob";
 import dbConnect from "@/lib/dbConnect";
+import { deductCredit } from "@/lib/credits";
 
-// Initialize OpenAI client (same as your existing route)
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     let isAnonymous = false;
     let user = null;
 
-    // ✅ Handle authentication (same pattern as your existing route)
+    // ✅ Handle authentication
     if (!session || !session.user) {
       if (!anonymousId) {
         return NextResponse.json(
@@ -37,17 +37,16 @@ export async function POST(req: Request) {
         );
       }
 
-      // Check if anonymous user already used their free credit
-      const existingCompletedJob = await AnonymousJob.findOne({
+      // ✅ Check if anonymous user already used their free credit
+      const existingGeneration = await AnonymousJob.findOne({
         sessionId: anonymousId,
-        tailoredResumeText: { $exists: true, $ne: "" },
+        generationType: { $in: ["enhance", "tailor"] },
       });
 
-      if (existingCompletedJob) {
+      if (existingGeneration) {
         return NextResponse.json(
           {
-            message:
-              "Free generation already used. Please sign up for more credits.",
+            message: "Sign up to get free generations",
           },
           { status: 402 }
         );
@@ -64,15 +63,23 @@ export async function POST(req: Request) {
         );
       }
 
-      if (user.credits <= 0) {
+      // ✅ Check and deduct credit for logged-in users
+      try {
+        await deductCredit(session.user.id);
+      } catch (creditError) {
         return NextResponse.json(
-          { message: "No credits remaining" },
+          {
+            message:
+              creditError instanceof Error
+                ? creditError.message
+                : "No credits remaining",
+          },
           { status: 402 }
         );
       }
     }
 
-    // ✅ AI Enhancement Prompt (Based on your Google recruiter insights)
+    // ✅ AI Enhancement Prompt
     const model = "gpt-4-turbo";
 
     const prompt = `
@@ -153,7 +160,7 @@ ${resumeText}
       throw new Error("OpenAI returned empty response");
     }
 
-    // ✅ Parse AI Response (same logic as your existing route)
+    // ✅ Parse AI Response
     let aiOutput;
     try {
       let cleaned = rawOutput
@@ -196,7 +203,7 @@ ${resumeText}
       }
     }
 
-    // ✅ Clean up resume text (same as your existing route)
+    // ✅ Clean up resume text
     let tailoredResumeText = (aiOutput.tailoredResume || "")
       .replace(/\\n/g, "\n")
       .replace(
@@ -211,34 +218,30 @@ ${resumeText}
       .replace(/ +\n/g, "\n")
       .trim();
 
-    // Force uppercase headers (compatible with content-parser)
+    // Force uppercase headers
     tailoredResumeText = tailoredResumeText.replace(
       /^(professional summary|summary|skills|experience|education|certifications|projects|contact)$/gim,
       (match: string) => match.toUpperCase()
     );
 
-    // Additional cleanup for content-parser compatibility
+    // Additional cleanup
     tailoredResumeText = tailoredResumeText
       .replace(/(SKILLS)\n([^A-Z])/g, "$1\n$2")
       .replace(/(PROJECTS)\n([^A-Z])/g, "$1\n$2")
       .replace(/(EXPERIENCE)\n([^A-Z])/g, "$1\n$2");
 
-    // ✅ Save results for anonymous users (same pattern as your existing route)
+    // ✅ Save results for anonymous users
     if (isAnonymous) {
       const anonymousJob = new AnonymousJob({
         sessionId: anonymousId,
         originalResumeText: resumeText,
         tailoredResumeText: tailoredResumeText,
         atsScore: aiOutput.atsScore || 0,
+        generationType: "enhance",
+        isCompleted: true,
         createdAt: new Date(),
       });
       await anonymousJob.save();
-    } else {
-      // Deduct credit only for authenticated users
-      if (user) {
-        user.credits = Math.max(user.credits - 1, 0);
-        await user.save();
-      }
     }
 
     return NextResponse.json(
@@ -248,7 +251,7 @@ ${resumeText}
         coverLetter: "", // Empty cover letter for standalone enhancement
         atsScore: aiOutput.atsScore,
         isAnonymous: isAnonymous,
-        hasCoverLetter: false, // Important: No cover letter for standalone
+        hasCoverLetter: false,
       },
       { status: 200 }
     );

@@ -1,4 +1,4 @@
-// models/user.ts - Update your existing model
+// models/user.ts
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -11,12 +11,16 @@ const userSchema = new mongoose.Schema({
   image: String,
   credits: {
     type: Number,
-    default: 10,
+    default: 3,
   },
   role: {
     type: String,
-    enum: ["user", "admin"],
-    default: "user",
+    enum: ["free", "pro", "admin"],
+    default: "free",
+  },
+  lastCreditReset: {
+    type: Date,
+    default: Date.now,
   },
   jobs: [
     {
@@ -24,6 +28,10 @@ const userSchema = new mongoose.Schema({
       ref: "Job",
     },
   ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

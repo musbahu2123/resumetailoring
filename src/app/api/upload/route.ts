@@ -1,7 +1,8 @@
+// app/api/upload/route.ts
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import Job from "@/models/job";
-import AnonymousJob from "@/models/AnonymousJob"; // Add this
+import AnonymousJob from "@/models/AnonymousJob";
 import mammoth from "mammoth";
 import { Buffer } from "buffer";
 import dbConnect from "@/lib/dbConnect";
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
     const jobDescriptionText = formData.get("jobDescriptionText") as string;
     const resumeText = formData.get("resumeText") as string;
 
-    // Validation (keep existing)
+    // Validation
     if (!jobDescriptionText) {
       return NextResponse.json(
         { message: "Job description is required" },
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
 
     let originalResumeText = resumeText;
 
-    // File processing (keep existing logic)
+    // File processing
     if (resumeFile) {
       const fileBuffer = await resumeFile.arrayBuffer();
       const fileExtension = resumeFile.name.split(".").pop()?.toLowerCase();
@@ -52,33 +53,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ NEW: Handle anonymous users
+    // ✅ Handle anonymous users
     if (!session || !session.user) {
-      // Check if this session already used free credit
       const headers = new Headers(req.headers);
       const anonymousId = headers.get("x-anonymous-id") || uuidv4();
 
-      const existingAnonymousJob = await AnonymousJob.findOne({
-        sessionId: anonymousId,
-        usedFreeCredit: true,
-      });
-
-      if (existingAnonymousJob) {
-        return NextResponse.json(
-          {
-            message:
-              "Free generation already used. Please sign up for more credits.",
-          },
-          { status: 402 }
-        );
-      }
-
-      // Create anonymous job
+      // ✅ Create anonymous job WITHOUT checking credits here
       const newAnonymousJob = await AnonymousJob.create({
         sessionId: anonymousId,
         jobDescriptionText,
         originalResumeText,
-        usedFreeCredit: true,
+        // ✅ NO usedFreeCredit field - credits checked in tailor/enhance routes
       });
 
       return NextResponse.json(
@@ -97,7 +82,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ EXISTING: Logged-in user flow (unchanged)
+    // ✅ Logged-in user flow
     const newJob = await Job.create({
       userId: session.user.id,
       jobDescriptionText,

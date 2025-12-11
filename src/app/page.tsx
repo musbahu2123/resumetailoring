@@ -1,5 +1,4 @@
-// In your landing page component (app/page.tsx) - SIMPLIFIED FIXED VERSION
-
+// app/page.tsx - UPDATED VERSION
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
@@ -32,7 +31,7 @@ const getAnonymousId = () => {
   return anonymousId;
 };
 
-// ✅ Check if free generation was used
+// ✅ Check if free generation was used - UPDATED LOGIC
 const hasUsedFreeGeneration = () => {
   if (typeof window === "undefined") return false;
   return localStorage.getItem("freeGenerationUsed") === "true";
@@ -60,11 +59,11 @@ export default function LandingPage() {
     "build" | "docx" | "pdf" | "paste"
   >();
 
-  // ✅ NEW: Track anonymous state
+  // ✅ Track anonymous state
   const [isAnonymousUser, setIsAnonymousUser] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
 
-  // ✅ NEW: Handle enhanced resumes
+  // ✅ Handle enhanced resumes
   const handleEnhancedResumeReady = (enhancedResumeText: string) => {
     setResults({
       tailoredResume: enhancedResumeText,
@@ -128,7 +127,7 @@ export default function LandingPage() {
     checkRetailorParams();
   }, []);
 
-  // ✅ FIXED: Check authentication status properly
+  // ✅ Check authentication status
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
@@ -168,7 +167,7 @@ export default function LandingPage() {
     }
   };
 
-  // ✅ SIMPLIFIED: Handle form submission - ONLY full tailoring
+  // ✅ UPDATED: Handle form submission with new error handling
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -218,7 +217,16 @@ export default function LandingPage() {
 
       if (!uploadResponse.ok) {
         if (uploadResponse.status === 402) {
-          setError("Free generation used. Please sign up for more credits.");
+          // ✅ NEW: Trigger signup modal for anonymous users
+          if (!isLoggedIn) {
+            setIsModalOpen(true);
+            setIsLoading(false);
+            return;
+          }
+          // ✅ For logged-in users, show credit error
+          setError(
+            "Monthly credits exhausted. Upgrade to Pro or wait till next month"
+          );
           setIsLoading(false);
           return;
         }
@@ -240,13 +248,25 @@ export default function LandingPage() {
 
       if (!tailorResponse.ok) {
         if (tailorResponse.status === 402) {
-          setError("Free generation used. Please sign up for more credits.");
-          setIsLoading(false);
-          return;
+          // ✅ NEW: Different handling based on user type
+          if (!isLoggedIn) {
+            // Anonymous user - trigger signup modal
+            setIsModalOpen(true);
+            setIsLoading(false);
+            return;
+          } else {
+            // Logged-in user - show monthly credit error
+            setError(
+              "Monthly credits exhausted. Upgrade to Pro or wait till next month"
+            );
+            setIsLoading(false);
+            return;
+          }
         }
         throw new Error(tailorData.message || "Failed to tailor resume.");
       }
 
+      // ✅ UPDATED: Track anonymous usage
       if (!isLoggedIn && tailorData.isAnonymous) {
         localStorage.setItem("freeGenerationUsed", "true");
         setIsAnonymousUser(false);
@@ -265,7 +285,7 @@ export default function LandingPage() {
     }
   };
 
-  // ✅ UPDATED: Download handler that accepts both templateId and documentType
+  // ✅ Download handler
   const handleDownload = async (
     templateId: string,
     documentType: "resume" | "coverLetter" = "resume"
@@ -323,25 +343,26 @@ export default function LandingPage() {
     }
   };
 
-  // ✅ SIMPLIFIED: Button disabled state - requires BOTH job description AND resume
+  // ✅ Button disabled state
   const isButtonDisabled =
     isLoading || !jobDescriptionText || (!resumeText && !resumeFile);
 
-  // ✅ SIMPLIFIED: Button text - always the same for main button
+  // ✅ UPDATED: Button text with clear messaging
   const getButtonText = () => {
     if (isLoading) {
       return "Tailoring Your Application...";
     }
 
     if (!isLoggedIn && !isAnonymousUser) {
-      return "Sign Up to Generate";
+      // ✅ CLEAR MESSAGE: User has used their free generation
+      return "Sign Up for Free Credits";
     }
 
     // ✅ ALWAYS show "Create Perfect Application" for the main button
     return "Tailor Perfect Application";
   };
 
-  // ✅ FIXED: Sign in handler with proper state updates
+  // ✅ Sign in handler
   const handleSignIn = () => {
     setIsLoggedIn(true);
     setIsModalOpen(false);
@@ -349,6 +370,9 @@ export default function LandingPage() {
     localStorage.removeItem("freeGenerationUsed");
     localStorage.removeItem("anonymousId");
     setIsAnonymousUser(false);
+
+    // ✅ Refresh the page to get fresh state with 3 credits
+    window.location.reload();
   };
 
   const handleSignOut = () => {
@@ -356,6 +380,21 @@ export default function LandingPage() {
     localStorage.removeItem("freeGenerationUsed");
     localStorage.removeItem("anonymousId");
     setIsAnonymousUser(true);
+  };
+
+  // ✅ UPDATED: Handle enhance-resume error with pricing redirect
+  const handleEnhanceError = (errorMessage: string) => {
+    if (errorMessage.includes("Sign up to get free generations")) {
+      setIsModalOpen(true);
+      setError(null);
+    } else if (errorMessage.includes("Monthly credits exhausted")) {
+      // Don't set error, let the user click the button below
+      setError(
+        "Monthly credits exhausted. Upgrade to Pro or wait till next month"
+      );
+    } else {
+      setError(errorMessage);
+    }
   };
 
   return (
@@ -417,8 +456,8 @@ export default function LandingPage() {
                 <Sparkles className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   {isAnonymousUser
-                    ? "No sign up required"
-                    : "Free Generation Used - Sign Up for More"}
+                    ? "No sign up required - 1 free generation"
+                    : "Free generation used - Sign up for free credits"}
                 </span>
               </div>
             )}
@@ -475,6 +514,7 @@ export default function LandingPage() {
                     setResumeText(resumeText);
                   }}
                   onEnhancedResumeReady={handleEnhancedResumeReady}
+                  onEnhanceError={handleEnhanceError} // ✅ UPDATED
                 />
                 <JobDescriptionSection
                   jobDescriptionText={jobDescriptionText}
@@ -482,6 +522,7 @@ export default function LandingPage() {
                 />
               </div>
 
+              {/* ✅ ENTIRELY UPDATED SUBMISSION & ERROR AREA */}
               <div className="text-center">
                 <Button
                   type="submit"
@@ -501,10 +542,74 @@ export default function LandingPage() {
                   )}
                 </Button>
 
+                {/* ✅ UPDATED ERROR HANDLING WITH PRICING REDIRECT */}
                 {error && (
-                  <p className="text-red-500 mt-4 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
-                    {error}
-                  </p>
+                  <div className="mt-4">
+                    {error.includes("Monthly credits exhausted") ? (
+                      <div className="text-center">
+                        <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-4 mb-3">
+                          <p className="text-red-600 font-medium mb-2">
+                            Monthly credits exhausted
+                          </p>
+                          <p className="text-sm text-gray-600 mb-3">
+                            You've used all 3 credits this month. Upgrade to Pro
+                            for unlimited generations!
+                          </p>
+                          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <Button
+                              onClick={() =>
+                                (window.location.href = "/pricing")
+                              }
+                              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white"
+                              size="sm"
+                              type="button"
+                            >
+                              🚀 View Premium Plans
+                            </Button>
+                            {/* <Button
+                              onClick={() =>
+                                (window.location.href = "/pricing")
+                              }
+                              variant="outline"
+                              size="sm"
+                              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                              type="button"
+                            >
+                              <Crown className="w-4 h-4 mr-2" />
+                              Join Lifetime Waitlist
+                            </Button> */}
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-500">
+                          or wait till next month for free credits reset
+                        </p>
+                      </div>
+                    ) : error.includes("Sign up to get free generations") ? (
+                      <div className="text-center">
+                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4 mb-3">
+                          <p className="text-blue-600 font-medium mb-2">
+                            Free generation used
+                          </p>
+                          <p className="text-sm text-gray-600 mb-3">
+                            You've used your free generation. Sign up for 3 free
+                            credits every month!
+                          </p>
+                          <Button
+                            onClick={() => setIsModalOpen(true)}
+                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                            size="sm"
+                            type="button"
+                          >
+                            Sign Up for Free Credits
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-red-500 mt-4 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+                        {error}
+                      </p>
+                    )}
+                  </div>
                 )}
 
                 <p className="flex items-center justify-center gap-2 text-sm text-gray-500 mt-4">
@@ -519,17 +624,19 @@ export default function LandingPage() {
                   </p>
                 )}
 
+                {/* ✅ UPDATED: Sign up prompt with clearer messaging */}
                 {!isLoggedIn && !isAnonymousUser && (
                   <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
                     <p className="text-blue-700 text-sm">
-                      <strong>Free generation used!</strong> Sign up to get 10
-                      free credits and unlock unlimited generations.
+                      <strong>Free generation used!</strong> Sign up to get 3
+                      free credits every month.
                     </p>
                     <Button
                       onClick={() => setIsModalOpen(true)}
                       className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-6"
+                      type="button"
                     >
-                      Sign Up for Free Credits
+                      Sign Up for Monthly Credits
                     </Button>
                   </div>
                 )}
@@ -566,6 +673,11 @@ export default function LandingPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSignIn={handleSignIn}
+        message={
+          !isLoggedIn && !isAnonymousUser
+            ? "Get free credits every month to enhance and tailor your resume!"
+            : undefined
+        }
       />
     </div>
   );

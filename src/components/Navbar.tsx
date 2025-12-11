@@ -1,8 +1,10 @@
+// components/Navbar.tsx - UPDATED WITH LOGO
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -37,12 +39,16 @@ export default function Navbar() {
   return (
     <>
       <nav className="flex items-center justify-between p-4 px-4 sm:px-6 bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
-        {/* Logo */}
+        {/* ✅ UPDATED LOGO WITH YOUR IMAGE */}
         <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-          <div className="relative">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
+          <div className="relative w-8 h-8">
+            <Image
+              src="/favicon.png"
+              alt="ResumeTailorApp Logo"
+              fill
+              className="object-contain rounded-lg"
+              sizes="32px"
+            />
           </div>
           <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             <span className="hidden sm:inline">ResumeTailorApp</span>

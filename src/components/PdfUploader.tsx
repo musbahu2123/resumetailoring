@@ -1,4 +1,4 @@
-// components/PdfUploader.tsx (UPDATED WITH ENHANCE BUTTON)
+// components/PdfUploader.tsx - UPDATED WITH ALL NEW PROPS
 "use client";
 import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,9 @@ import { FileUp, Loader2, Wand2 } from "lucide-react";
 interface PdfUploaderProps {
   onPdfTextExtracted: (text: string) => void;
   onError: (message: string) => void;
-  onEnhanceResume?: (text: string) => void; // NEW: Enhance callback
+  onEnhanceResume?: (text: string) => void; // Enhance callback
+  onEnhanceError?: (errorMessage: string) => void; // ✅ NEW: Enhance error callback
+  isLoggedIn?: boolean; // ✅ NEW: Auth status
 }
 
 // Import PDF.js types
@@ -19,13 +21,29 @@ declare global {
   }
 }
 
+// ✅ Utility function to get anonymous ID
+const getAnonymousId = () => {
+  if (typeof window === "undefined") return null;
+
+  let anonymousId = localStorage.getItem("anonymousId");
+  if (!anonymousId) {
+    anonymousId =
+      "anon_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("anonymousId", anonymousId);
+  }
+  return anonymousId;
+};
+
 export default function PdfUploader({
   onPdfTextExtracted,
   onError,
-  onEnhanceResume, // NEW: Enhance callback
+  onEnhanceResume,
+  onEnhanceError, // ✅ NEW PROP
+  isLoggedIn = false, // ✅ NEW PROP
 }: PdfUploaderProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [extractedText, setExtractedText] = useState(""); // NEW: Store extracted text
+  const [isEnhancing, setIsEnhancing] = useState(false); // ✅ NEW: Enhance loading state
+  const [extractedText, setExtractedText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePdfUpload = async (
@@ -35,17 +53,14 @@ export default function PdfUploader({
     if (!file) return;
 
     setIsProcessing(true);
-    setExtractedText(""); // Reset extracted text
+    setExtractedText("");
 
     try {
-      // Use CDN version to avoid import issues
       if (!window.pdfjsLib) {
-        // Load PDF.js from CDN
         const script = document.createElement("script");
         script.src =
           "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
         script.onload = async () => {
-          // Load the worker
           window.pdfjsLib = (window as any).pdfjsLib;
           window.pdfjsLib.GlobalWorkerOptions.workerSrc =
             "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -81,7 +96,7 @@ export default function PdfUploader({
           );
         }
 
-        setExtractedText(fullText); // Store the extracted text
+        setExtractedText(fullText);
         onPdfTextExtracted(fullText);
       } catch (error) {
         console.error("PDF processing error:", error);
@@ -99,15 +114,62 @@ export default function PdfUploader({
     }
   };
 
-  // NEW: Handle enhance resume
-  const handleEnhanceResume = () => {
+  // ✅ UPDATED: Handle enhance resume with proper error handling
+  const handleEnhanceResume = async () => {
     if (!extractedText.trim()) {
-      alert("Please upload and process a PDF first");
+      if (onEnhanceError) {
+        onEnhanceError("Please upload and process a PDF first");
+      } else {
+        alert("Please upload and process a PDF first");
+      }
       return;
     }
 
-    if (onEnhanceResume) {
-      onEnhanceResume(extractedText);
+    if (!onEnhanceResume) return;
+
+    setIsEnhancing(true);
+
+    try {
+      const anonymousId = getAnonymousId();
+
+      const response = await fetch("/api/enhance-resume", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeText: extractedText,
+          anonymousId: !isLoggedIn ? anonymousId : undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 402) {
+          if (onEnhanceError) {
+            onEnhanceError(data.message);
+          } else {
+            alert(data.message || "Sign up to get free generations");
+          }
+          return;
+        }
+        throw new Error(data.message || "Failed to enhance resume");
+      }
+
+      // Call the enhance callback
+      onEnhanceResume(data.tailoredResume);
+    } catch (error) {
+      console.error("Enhancement error:", error);
+      if (onEnhanceError) {
+        onEnhanceError(
+          error instanceof Error ? error.message : "Failed to enhance resume"
+        );
+      } else {
+        alert("Failed to enhance resume. Please try again.");
+      }
+    } finally {
+      setIsEnhancing(false);
     }
   };
 
@@ -125,7 +187,7 @@ export default function PdfUploader({
           type="file"
           accept=".pdf"
           onChange={handlePdfUpload}
-          disabled={isProcessing}
+          disabled={isProcessing || isEnhancing}
           className="p-2 border-2 border-dashed border-gray-300 rounded-xl"
         />
 
@@ -136,7 +198,7 @@ export default function PdfUploader({
           </div>
         )}
 
-        {/* NEW: Enhance Button after successful PDF extraction */}
+        {/* Enhance Button after successful PDF extraction */}
         {extractedText && !isProcessing && (
           <div className="space-y-3">
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -148,14 +210,24 @@ export default function PdfUploader({
 
             <Button
               onClick={handleEnhanceResume}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3"
+              disabled={isEnhancing}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 disabled:opacity-70"
             >
-              <Wand2 size={18} />
-              🚀 Enhance Resume
+              {isEnhancing ? (
+                <>
+                  <Loader2 className="animate-spin w-5 h-5" />
+                  Enhancing...
+                </>
+              ) : (
+                <>
+                  <Wand2 size={18} />
+                  🚀 Enhance Resume
+                </>
+              )}
             </Button>
 
             <p className="text-xs text-gray-500 text-center">
-              Enhance your resume with AI to optimize ats, formatting and
+              Enhance your resume with AI to optimize ATS, formatting and
               content
             </p>
           </div>
