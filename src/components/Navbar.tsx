@@ -1,4 +1,4 @@
-// components/Navbar.tsx - UPDATED WITH LOGO
+// components/Navbar.tsx - UPDATED WITH PRICING
 "use client";
 
 import Link from "next/link";
@@ -137,6 +137,15 @@ export default function Navbar() {
           {/* Navigation Links - Only show when logged in */}
           {session && (
             <>
+              {/* ✅ NEW: Upgrade Link */}
+              <Link
+                href="/pricing"
+                className="text-gray-600 hover:text-blue-600 transition-colors font-medium flex items-center gap-1"
+              >
+                <Crown size={16} className="text-orange-500" />
+                Upgrade
+              </Link>
+
               <Link
                 href="/documents"
                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
@@ -198,6 +207,17 @@ export default function Navbar() {
                     >
                       <FileText size={16} />
                       Free Tools
+                    </Link>
+                  </DropdownMenuItem>
+
+                  {/* ✅ NEW: Upgrade in mobile menu */}
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/pricing"
+                      className="flex items-center gap-2 cursor-pointer text-gray-700 w-full md:hidden"
+                    >
+                      <Crown size={16} className="text-orange-500" />
+                      Upgrade
                     </Link>
                   </DropdownMenuItem>
 
