@@ -1,6 +1,6 @@
 // app/api/waitlist/route.ts
 import { NextResponse } from "next/server";
-import Waitlist from "@/models/Waitlist";
+import Waitlist from "@/models/waitlist";
 import dbConnect from "@/lib/dbConnect";
 
 export async function POST(req: Request) {
