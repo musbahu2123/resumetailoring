@@ -1,4 +1,4 @@
-// app/blog/[slug]/BlogPostClient.tsx - FIXED WITH PROPER LOADING STATES
+// app/blog/[slug]/BlogPostClient.tsx - CLEAN SIMPLE VERSION
 "use client";
 
 import Link from "next/link";
@@ -16,10 +16,10 @@ import {
   Sparkles,
   Users,
   CheckCircle,
-  // ADDED MISSING ICONS HERE
   Shield,
   Zap,
   Award,
+  Image as ImageIcon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -47,19 +47,39 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
   const [allPosts, setAllPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Helper function to get valid image source
-  const getImageSrc = (imagePath: string) => {
-    if (!imagePath) return null;
-    if (imagePath.startsWith("http")) return imagePath;
-    if (imagePath.startsWith("/")) return imagePath;
-    if (imagePath.startsWith("images/")) return `/${imagePath}`;
+  // Helper function to validate and get image source
+  const getValidImageSrc = (imagePath: string): string | null => {
+    if (
+      !imagePath ||
+      imagePath.trim() === "" ||
+      imagePath === "null" ||
+      imagePath === "undefined"
+    ) {
+      return null;
+    }
+
+    const cleanPath = imagePath.trim();
+
+    if (cleanPath.startsWith("http://") || cleanPath.startsWith("https://")) {
+      return cleanPath;
+    }
+
+    if (cleanPath.startsWith("/") && !cleanPath.startsWith("//")) {
+      return cleanPath;
+    }
+
+    if (cleanPath.startsWith("images/")) {
+      return `/${cleanPath}`;
+    }
+
+    if (cleanPath.match(/^[a-zA-Z0-9_-]+\.[a-zA-Z]{3,4}$/)) {
+      return `/images/blog/${cleanPath}`;
+    }
+
     return null;
   };
 
-  const isLocalImage = (imagePath: string) => {
-    return imagePath.startsWith("/") && !imagePath.startsWith("//");
-  };
-
+  // Fetch related posts
   useEffect(() => {
     const fetchBlogPosts = async () => {
       try {
@@ -72,10 +92,8 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
 
         const data = await response.json();
 
-        // Ensure data is an array before using filter
         if (Array.isArray(data)) {
           setAllPosts(data);
-          // Only filter related posts if post is available
           if (post?._id && post?.category) {
             setRelatedPosts(
               data
@@ -86,7 +104,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                 .slice(0, 3)
             );
           } else {
-            setRelatedPosts(data.slice(0, 3)); // Fallback: show first 3 posts
+            setRelatedPosts(data.slice(0, 3));
           }
         } else {
           console.error("Expected array but got:", data);
@@ -103,9 +121,15 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
     };
 
     fetchBlogPosts();
-  }, [post?._id, post?.category]); // Safe access with optional chaining
+  }, [post?._id, post?.category]);
 
-  // Show loading state if post is not available yet
+  const hasValidImage = (): boolean => {
+    const src = getValidImageSrc(post.image);
+    return src !== null && src !== "";
+  };
+
+  const imageSrc = getValidImageSrc(post.image);
+
   if (!post) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
@@ -139,14 +163,13 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
           </p>
         </div>
 
-        {/* MAIN GRID - Only for Article and Blogs sections */}
+        {/* MAIN GRID - Simple sticky sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">
-          {/* LEFT SIDEBAR - Sticky for Article & Blogs sections only */}
+          {/* LEFT SIDEBAR - Simple sticky */}
           <div className="lg:col-span-1 order-2 lg:order-1">
             <div className="sticky top-8">
               {/* AI Resume Builder CTA */}
               <div className="bg-gradient-to-br from-orange-400 to-pink-400 rounded-2xl shadow-xl p-6 text-white relative overflow-hidden">
-                {/* Sponsored Badge */}
                 <div className="absolute top-3 right-3">
                   <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full text-xs">
                     <Crown className="w-3 h-3" />
@@ -162,7 +185,6 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                     Let AI format your resume - 100% no typos & ATS friendly
                   </p>
 
-                  {/* Single Template Image - Classic */}
                   <div className="mb-4">
                     <div className="bg-white/20 rounded-xl p-3">
                       <div className="aspect-[3/4] bg-gray-800 rounded-lg overflow-hidden mb-2">
@@ -208,15 +230,15 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
             </div>
           </div>
 
-          {/* MAIN CONTENT - 3/4 width for Article & Blogs */}
+          {/* MAIN CONTENT */}
           <div className="lg:col-span-3 space-y-12 order-1 lg:order-2">
             {/* Article Content */}
             <Card className="shadow-xl border-0 rounded-2xl overflow-hidden">
-              <div className="relative aspect-video bg-gray-200">
-                {getImageSrc(post.image) ? (
-                  isLocalImage(post.image) ? (
+              {hasValidImage() && imageSrc ? (
+                <div className="relative aspect-video bg-gray-100">
+                  {imageSrc.startsWith("/") ? (
                     <Image
-                      src={getImageSrc(post.image)!}
+                      src={imageSrc}
                       alt={post.title}
                       fill
                       className="object-cover"
@@ -224,31 +246,37 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                       priority
                     />
                   ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={getImageSrc(post.image)!}
+                      src={imageSrc}
                       alt={post.title}
                       className="object-cover w-full h-full"
                     />
-                  )
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center text-white">
-                    <div className="text-center">
-                      <div className="text-xl font-semibold">
-                        Featured Image
-                      </div>
-                      <div className="text-sm opacity-80 mt-2">
-                        {post.image || "No image provided"}
-                      </div>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-gray-50/50 p-8">
+                  <div className="text-center py-8">
+                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-4 mx-auto border border-gray-200">
+                      <ImageIcon className="w-6 h-6 text-gray-400" />
                     </div>
+                    <p className="text-gray-500 text-sm">
+                      Content-focused article
+                    </p>
                   </div>
-                )}
-              </div>
-              <CardContent className="p-8">
-                <div className="flex flex-wrap items-center gap-4 text-gray-500 text-sm mb-4">
+                </div>
+              )}
+
+              <CardContent className="p-6 md:p-8">
+                <div className="flex flex-wrap items-center gap-4 text-gray-500 text-sm mb-6">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     <span>
-                      {new Date(post.publishedAt).toLocaleDateString()}
+                      {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -257,7 +285,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                   </div>
                   <div className="flex items-center gap-1">
                     <User className="w-4 h-4" />
-                    <span>{post.author}</span>
+                    <span>{post.author || "ResumeTailorApp Team"}</span>
                   </div>
                   <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
                     {post.category}
@@ -265,7 +293,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                 </div>
 
                 {/* Trust Bar */}
-                <div className="flex flex-wrap justify-center gap-4 lg:gap-6 mb-8 text-sm text-gray-600">
+                <div className="flex flex-wrap justify-center gap-4 lg:gap-6 mb-8 text-sm text-gray-600 py-4 border-y border-gray-100">
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-green-500" />
                     <span>10,000+ Readers</span>
@@ -280,37 +308,25 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                   </div>
                 </div>
 
+                {/* Blog Content */}
                 <div
-                  className="prose prose-lg max-w-none 
-                    prose-headings:text-gray-900 
-                    prose-p:text-gray-700 
-                    prose-li:text-gray-700 
-                    prose-strong:text-gray-900 
-                    prose-a:text-blue-600 hover:prose-a:text-blue-700
-                    prose-table:min-w-full
-                    prose-table:border-collapse
-                    prose-th:bg-gray-50
-                    prose-th:border prose-th:border-gray-300
-                    prose-th:px-4 prose-th:py-3
-                    prose-th:text-left prose-th:text-gray-900
-                    prose-td:border prose-td:border-gray-300
-                    prose-td:px-4 prose-td:py-3
-                    prose-td:text-gray-700
-                    prose-ul:list-disc prose-ul:pl-6
-                    prose-ol:list-decimal prose-ol:pl-6
-                    leading-relaxed mb-8"
+                  className="blog-content"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
 
-                <div className="flex items-center gap-4">
-                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row items-center gap-4 mt-12 pt-8 border-t border-gray-200">
+                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white flex-1 sm:flex-none">
                     <Share2 className="w-4 h-4 mr-2" />
                     Share Article
                   </Button>
-                  <Link href="/blog">
+                  <Link
+                    href="/blog"
+                    className="flex-1 sm:flex-none w-full sm:w-auto"
+                  >
                     <Button
                       variant="outline"
-                      className="flex items-center gap-2"
+                      className="w-full flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       Back to Blog
@@ -320,9 +336,9 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
               </CardContent>
             </Card>
 
-            {/* More Blogs Section - Show all posts except current one */}
+            {/* More Blogs Section */}
             {!loading && allPosts.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
                   More From Our Blog
                 </h2>
@@ -358,11 +374,10 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
           </div>
         </div>
 
-        {/* UPDATED BOTTOM TEMPLATES SECTION - SINGLE BIG TEMPLATE LIKE TOOLS PAGE */}
+        {/* BOTTOM TEMPLATES SECTION */}
         <div className="flex justify-center w-full">
           <div className="w-full max-w-6xl">
             <div className="bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl shadow-2xl p-8 lg:p-12 text-white text-center overflow-hidden">
-              {/* Main Header */}
               <div className="text-center mb-8">
                 <h3 className="text-4xl font-bold mb-4">
                   Stop Manual Formatting! 🚀
@@ -373,9 +388,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                 </p>
               </div>
 
-              {/* Single Big Template with Content */}
               <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 mb-8">
-                {/* Big Template Image */}
                 <div className="flex-1 max-w-md lg:max-w-lg">
                   <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-sm border border-white/20">
                     <div className="aspect-[3/4] bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-300">
@@ -390,7 +403,6 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                   </div>
                 </div>
 
-                {/* Content & Benefits */}
                 <div className="flex-1 text-left space-y-6">
                   <div>
                     <h4 className="font-bold text-2xl mb-3">
@@ -402,7 +414,6 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                     </p>
                   </div>
 
-                  {/* Benefits Grid */}
                   <div className="grid grid-cols-1 gap-4">
                     <div className="flex items-center gap-3">
                       <Shield className="w-6 h-6 text-green-300 flex-shrink-0" />
@@ -450,7 +461,6 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                     </div>
                   </div>
 
-                  {/* Success Stats */}
                   <div className="bg-white/10 rounded-xl p-4 mt-6">
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
@@ -474,7 +484,6 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
                 </div>
               </div>
 
-              {/* Big CTA Button */}
               <div className="text-center mt-8">
                 <Button
                   className="bg-white text-blue-600 hover:bg-gray-100 font-bold py-6 px-16 text-xl shadow-2xl transform hover:scale-105 transition-all duration-200"

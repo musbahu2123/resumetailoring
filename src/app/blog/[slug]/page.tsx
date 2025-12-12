@@ -1,4 +1,4 @@
-// app/blog/[slug]/page.tsx - CLEAN VERSION
+// app/blog/[slug]/page.tsx - SIMPLIFIED SERVER-SIDE PROCESSING
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import BlogPostClient from "./BlogPostClient";
@@ -20,6 +20,37 @@ interface BlogPost {
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+// Simple regex-based server-side heading ID processing
+function addIdsToHeadings(html: string): string {
+  let processed = html;
+  let index = 0;
+
+  // Match h1-h6 tags without existing IDs
+  processed = processed.replace(
+    /<h([1-6])([^>]*)>([^<]+)<\/h[1-6]>/gi,
+    (match, level, attrs, text) => {
+      // Check if id already exists
+      if (attrs.includes('id="')) {
+        return match;
+      }
+
+      // Create ID from text
+      const id =
+        text
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "") || `heading-${index++}`;
+
+      return `<h${level}${attrs} id="${id}">${text}</h${level}>`;
+    }
+  );
+
+  return processed;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -76,6 +107,12 @@ async function getPostData(slug: string): Promise<BlogPost | null> {
     }
 
     const post = await response.json();
+
+    // Process headings on server side to avoid hydration errors
+    if (post.content) {
+      post.content = addIdsToHeadings(post.content);
+    }
+
     return post;
   } catch (error) {
     return null;

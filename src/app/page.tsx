@@ -566,18 +566,6 @@ export default function LandingPage() {
                             >
                               🚀 View Premium Plans
                             </Button>
-                            {/* <Button
-                              onClick={() =>
-                                (window.location.href = "/pricing")
-                              }
-                              variant="outline"
-                              size="sm"
-                              className="border-purple-300 text-purple-700 hover:bg-purple-50"
-                              type="button"
-                            >
-                              <Crown className="w-4 h-4 mr-2" />
-                              Join Lifetime Waitlist
-                            </Button> */}
                           </div>
                         </div>
                         <p className="text-sm text-gray-500">

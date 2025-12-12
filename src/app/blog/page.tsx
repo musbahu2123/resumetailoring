@@ -1,3 +1,4 @@
+// app/blog/page.tsx - FIXED VERSION WITH NO BLUE PLACEHOLDERS
 "use client";
 
 import Link from "next/link";
@@ -16,10 +17,11 @@ import {
   ArrowRight,
   Search,
   Sparkles,
-  Shield, // New Icon
-  Zap, // New Icon
-  Award, // New Icon
-  CheckCircle, // New Icon
+  Shield,
+  Zap,
+  Award,
+  CheckCircle,
+  Image as ImageIcon, // Added this import
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 
@@ -90,25 +92,44 @@ export default function BlogPage() {
   }, [posts]);
 
   // Helper function to get valid image source
-  const getImageSrc = (imagePath: string) => {
-    if (!imagePath) return null;
-
-    // If it's already a full URL, use it directly
-    if (imagePath.startsWith("http")) {
-      return imagePath;
+  const getValidImageSrc = (imagePath: string): string | null => {
+    if (
+      !imagePath ||
+      imagePath.trim() === "" ||
+      imagePath === "null" ||
+      imagePath === "undefined"
+    ) {
+      return null;
     }
 
-    // If it's a local path starting with /, use it directly
-    if (imagePath.startsWith("/")) {
-      return imagePath;
+    const cleanPath = imagePath.trim();
+
+    // Check for valid URLs
+    if (cleanPath.startsWith("http://") || cleanPath.startsWith("https://")) {
+      return cleanPath;
     }
 
-    // If it's a relative path without leading slash, add it
-    if (imagePath.startsWith("images/")) {
-      return `/${imagePath}`;
+    // Check for local paths
+    if (cleanPath.startsWith("/") && !cleanPath.startsWith("//")) {
+      return cleanPath;
+    }
+
+    // Check for images/ directory paths
+    if (cleanPath.startsWith("images/")) {
+      return `/${cleanPath}`;
+    }
+
+    // If it's just a filename, assume it's in /images/blog/
+    if (cleanPath.match(/^[a-zA-Z0-9_-]+\.[a-zA-Z]{3,4}$/)) {
+      return `/images/blog/${cleanPath}`;
     }
 
     return null;
+  };
+
+  // Check if image is available
+  const hasValidImage = (imagePath: string): boolean => {
+    return getValidImageSrc(imagePath) !== null;
   };
 
   // --- Loading State Display ---
@@ -235,21 +256,27 @@ export default function BlogPage() {
                   </Button>
                 </Link>
               </div>
-              <div className="relative aspect-video lg:aspect-square rounded-lg overflow-hidden bg-gray-200">
-                {getImageSrc(featuredPost.image) ? (
+              <div className="relative aspect-video lg:aspect-square rounded-lg overflow-hidden">
+                {hasValidImage(featuredPost.image) ? (
                   <Image
-                    src={getImageSrc(featuredPost.image)!}
+                    src={getValidImageSrc(featuredPost.image)!}
                     alt={featuredPost.title}
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center text-white">
+                  // NO BLUE PLACEHOLDER - Clean minimalist design
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 flex flex-col items-center justify-center p-4">
+                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 border-2 border-dashed border-blue-200">
+                      <ImageIcon className="w-8 h-8 text-blue-400" />
+                    </div>
                     <div className="text-center">
-                      <div className="text-lg font-semibold">No Image</div>
-                      <div className="text-sm opacity-80">
-                        {featuredPost.image}
+                      <div className="font-medium text-blue-600 text-sm">
+                        Featured Article
+                      </div>
+                      <div className="text-blue-500 text-xs mt-1">
+                        No image available
                       </div>
                     </div>
                   </div>
@@ -261,69 +288,82 @@ export default function BlogPage() {
 
         {/* Blog Posts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {filteredPosts.map((post) => (
-            <Card
-              key={post._id}
-              className="group bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 overflow-hidden"
-            >
-              <CardHeader className="p-0">
-                <div className="relative aspect-video bg-gray-200 overflow-hidden">
-                  {getImageSrc(post.image) ? (
-                    <Image
-                      src={getImageSrc(post.image)!}
-                      alt={post.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center text-white">
-                      <div className="text-center p-4">
-                        <div className="font-semibold">No Image</div>
-                        <div className="text-xs opacity-80 mt-1 truncate max-w-full">
-                          {post.image}
+          {filteredPosts.map((post) => {
+            const validImageSrc = getValidImageSrc(post.image);
+            const hasImage = validImageSrc !== null;
+
+            return (
+              <Card
+                key={post._id}
+                className="group bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 overflow-hidden h-full flex flex-col"
+              >
+                <CardHeader className="p-0 flex-shrink-0">
+                  <div className="relative aspect-video bg-gray-100 overflow-hidden">
+                    {hasImage ? (
+                      <Image
+                        src={validImageSrc}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    ) : (
+                      // NO BLUE PLACEHOLDER - Clean design
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center p-4">
+                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-2 border border-gray-200 shadow-sm">
+                          <ImageIcon className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <div className="text-center">
+                          <div className="font-medium text-gray-600 text-xs">
+                            Article Preview
+                          </div>
+                          <div className="text-gray-500 text-xs mt-1 truncate max-w-[200px]">
+                            {post.category}
+                          </div>
                         </div>
                       </div>
+                    )}
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-white/90 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                        {post.category}
+                      </span>
                     </div>
-                  )}
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-white/90 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                      {post.category}
-                    </span>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 text-gray-500 text-sm mb-3">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      {new Date(post.publishedAt).toLocaleDateString()}
-                    </span>
+                </CardHeader>
+                <CardContent className="p-6 flex-grow flex flex-col">
+                  <div className="flex items-center gap-4 text-gray-500 text-sm mb-3">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>
+                        {new Date(post.publishedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{post.readTime}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{post.readTime}</span>
+                  <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-3 line-clamp-2">
+                    {post.title}
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 mb-4 line-clamp-3 flex-grow">
+                    {post.description}
+                  </CardDescription>
+                  <div className="mt-auto">
+                    <Link href={`/blog/${post.slug}`} passHref>
+                      <Button
+                        variant="ghost"
+                        className="p-0 h-auto text-blue-600 hover:text-blue-700 hover:bg-transparent group/btn w-full justify-start"
+                      >
+                        Read More
+                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
                   </div>
-                </div>
-                <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-3 line-clamp-2">
-                  {post.title}
-                </CardTitle>
-                <CardDescription className="text-gray-600 mb-4 line-clamp-3">
-                  {post.description}
-                </CardDescription>
-                <Link href={`/blog/${post.slug}`} passHref>
-                  <Button
-                    variant="ghost"
-                    className="p-0 h-auto text-blue-600 hover:text-blue-700 hover:bg-transparent group/btn"
-                  >
-                    Read More
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Empty State */}
@@ -350,7 +390,7 @@ export default function BlogPage() {
           </div>
         )}
 
-        {/* UPDATED BOTTOM TEMPLATES SECTION - SINGLE BIG TEMPLATE LIKE TOOLS PAGE */}
+        {/* UPDATED BOTTOM TEMPLATES SECTION */}
         <div className="flex justify-center w-full">
           <div className="w-full max-w-6xl">
             <div className="bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl shadow-2xl p-8 lg:p-12 text-white text-center overflow-hidden">
