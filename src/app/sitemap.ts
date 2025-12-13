@@ -75,8 +75,42 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
 
     // -------------------------------------------------------------------------
-    // 3. BLOG: NEW GROWTH POSTS (The 5 New Ones)
+    // 3. BLOG: NEW GROWTH POSTS (All 10 Growth Posts)
     // -------------------------------------------------------------------------
+
+    // --- Batch 2 (The 5 Newest) ---
+    {
+      url: `${baseUrl}/blog/resume-writer-vs-ai-resume-builder-2026`,
+      lastModified: lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog/how-to-list-projects-and-freelance-work-on-resume-2026`,
+      lastModified: lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog/how-to-tailor-resume-for-remote-jobs-2026`,
+      lastModified: lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog/common-resume-mistakes-to-avoid-2026`,
+      lastModified: lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog/career-change-resume-guide-pivot-industries-2026`,
+      lastModified: lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+
+    // --- Batch 1 (The Previous 5) ---
     {
       url: `${baseUrl}/blog/best-resume-formats-2026-chronological-vs-functional-vs-hybrid`,
       lastModified: lastModified,

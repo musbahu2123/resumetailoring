@@ -1,4 +1,4 @@
-// app/blog/page.tsx - FIXED VERSION WITH NO BLUE PLACEHOLDERS
+// app/blog/page.tsx - TEXT-ONLY BLOG CARDS WITH ORIGINAL BOTTOM TEMPLATES
 "use client";
 
 import Link from "next/link";
@@ -21,7 +21,6 @@ import {
   Zap,
   Award,
   CheckCircle,
-  Image as ImageIcon, // Added this import
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 
@@ -91,47 +90,6 @@ export default function BlogPage() {
     return posts.find((post) => post.featured);
   }, [posts]);
 
-  // Helper function to get valid image source
-  const getValidImageSrc = (imagePath: string): string | null => {
-    if (
-      !imagePath ||
-      imagePath.trim() === "" ||
-      imagePath === "null" ||
-      imagePath === "undefined"
-    ) {
-      return null;
-    }
-
-    const cleanPath = imagePath.trim();
-
-    // Check for valid URLs
-    if (cleanPath.startsWith("http://") || cleanPath.startsWith("https://")) {
-      return cleanPath;
-    }
-
-    // Check for local paths
-    if (cleanPath.startsWith("/") && !cleanPath.startsWith("//")) {
-      return cleanPath;
-    }
-
-    // Check for images/ directory paths
-    if (cleanPath.startsWith("images/")) {
-      return `/${cleanPath}`;
-    }
-
-    // If it's just a filename, assume it's in /images/blog/
-    if (cleanPath.match(/^[a-zA-Z0-9_-]+\.[a-zA-Z]{3,4}$/)) {
-      return `/images/blog/${cleanPath}`;
-    }
-
-    return null;
-  };
-
-  // Check if image is available
-  const hasValidImage = (imagePath: string): boolean => {
-    return getValidImageSrc(imagePath) !== null;
-  };
-
   // --- Loading State Display ---
   if (loading) {
     return (
@@ -159,7 +117,7 @@ export default function BlogPage() {
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
-                className="h-96 bg-gray-200 rounded-xl animate-pulse"
+                className="h-64 bg-gray-200 rounded-xl animate-pulse"
               ></div>
             ))}
           </div>
@@ -220,10 +178,10 @@ export default function BlogPage() {
           ))}
         </div>
 
-        {/* Featured Post */}
+        {/* Featured Post - Text only version */}
         {featuredPost && selectedCategory === "All Posts" && !searchQuery && (
           <Card className="mb-12 shadow-xl border-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+            <CardContent className="p-8">
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-sm">
                   <span>⭐ Featured Post</span>
@@ -256,114 +214,59 @@ export default function BlogPage() {
                   </Button>
                 </Link>
               </div>
-              <div className="relative aspect-video lg:aspect-square rounded-lg overflow-hidden">
-                {hasValidImage(featuredPost.image) ? (
-                  <Image
-                    src={getValidImageSrc(featuredPost.image)!}
-                    alt={featuredPost.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
-                ) : (
-                  // NO BLUE PLACEHOLDER - Clean minimalist design
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 flex flex-col items-center justify-center p-4">
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 border-2 border-dashed border-blue-200">
-                      <ImageIcon className="w-8 h-8 text-blue-400" />
-                    </div>
-                    <div className="text-center">
-                      <div className="font-medium text-blue-600 text-sm">
-                        Featured Article
-                      </div>
-                      <div className="text-blue-500 text-xs mt-1">
-                        No image available
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            </CardContent>
           </Card>
         )}
 
-        {/* Blog Posts Grid */}
+        {/* Blog Posts Grid - Text only cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {filteredPosts.map((post) => {
-            const validImageSrc = getValidImageSrc(post.image);
-            const hasImage = validImageSrc !== null;
+          {filteredPosts.map((post) => (
+            <Card
+              key={post._id}
+              className="group bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 overflow-hidden h-full flex flex-col"
+            >
+              <CardContent className="p-6 flex-grow flex flex-col">
+                <div className="mb-4">
+                  <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                    {post.category}
+                  </span>
+                </div>
 
-            return (
-              <Card
-                key={post._id}
-                className="group bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 overflow-hidden h-full flex flex-col"
-              >
-                <CardHeader className="p-0 flex-shrink-0">
-                  <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                    {hasImage ? (
-                      <Image
-                        src={validImageSrc}
-                        alt={post.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    ) : (
-                      // NO BLUE PLACEHOLDER - Clean design
-                      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col items-center justify-center p-4">
-                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-2 border border-gray-200 shadow-sm">
-                          <ImageIcon className="w-6 h-6 text-gray-400" />
-                        </div>
-                        <div className="text-center">
-                          <div className="font-medium text-gray-600 text-xs">
-                            Article Preview
-                          </div>
-                          <div className="text-gray-500 text-xs mt-1 truncate max-w-[200px]">
-                            {post.category}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-white/90 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                        {post.category}
-                      </span>
-                    </div>
+                <div className="flex items-center gap-4 text-gray-500 text-sm mb-3">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>
+                      {new Date(post.publishedAt).toLocaleDateString()}
+                    </span>
                   </div>
-                </CardHeader>
-                <CardContent className="p-6 flex-grow flex flex-col">
-                  <div className="flex items-center gap-4 text-gray-500 text-sm mb-3">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        {new Date(post.publishedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{post.readTime}</span>
-                    </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{post.readTime}</span>
                   </div>
-                  <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-3 line-clamp-2">
-                    {post.title}
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 mb-4 line-clamp-3 flex-grow">
-                    {post.description}
-                  </CardDescription>
-                  <div className="mt-auto">
-                    <Link href={`/blog/${post.slug}`} passHref>
-                      <Button
-                        variant="ghost"
-                        className="p-0 h-auto text-blue-600 hover:text-blue-700 hover:bg-transparent group/btn w-full justify-start"
-                      >
-                        Read More
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                </div>
+
+                <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-3 line-clamp-2">
+                  {post.title}
+                </CardTitle>
+
+                <CardDescription className="text-gray-600 mb-4 line-clamp-3 flex-grow">
+                  {post.description}
+                </CardDescription>
+
+                <div className="mt-auto pt-4 border-t border-gray-100">
+                  <Link href={`/blog/${post.slug}`} passHref>
+                    <Button
+                      variant="ghost"
+                      className="p-0 h-auto text-blue-600 hover:text-blue-700 hover:bg-transparent group/btn w-full justify-start"
+                    >
+                      Read More
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Empty State */}
@@ -390,7 +293,7 @@ export default function BlogPage() {
           </div>
         )}
 
-        {/* UPDATED BOTTOM TEMPLATES SECTION */}
+        {/* UPDATED BOTTOM TEMPLATES SECTION - KEPT EXACTLY AS IT WAS */}
         <div className="flex justify-center w-full">
           <div className="w-full max-w-6xl">
             <div className="bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl shadow-2xl p-8 lg:p-12 text-white text-center overflow-hidden">
