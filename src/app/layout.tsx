@@ -1,53 +1,56 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+// ✅ POWERFUL, CONVERSION-FOCUSED METADATA
 export const metadata: Metadata = {
-  title: "AI Resume Builder: Get 3x More Interviews (Free Tool)",
+  // ✅ HIGH-CONVERTING TITLE: Keyword + Benefit + CTA
+  title:
+    "AI Resume Builder | Tailor Resume to Any Job in 30 Seconds | Free Tool",
+
+  // ✅ HIGH-CONVERSION DESCRIPTION: Problem → Solution → Benefit → CTA
   description:
-    "🚀 Land Your Dream Job - AI tailors your resume & cover letter to ANY job in 30 seconds. 25+ years recruiter insights + ATS optimization. Free instant download.",
+    "Get 3x more interviews with AI-powered resume tailoring. Upload your resume, paste any job description, and instantly generate a perfectly tailored resume & cover letter. Free tool with 25+ years of recruiter insights built-in. Beat ATS systems, impress recruiters, and land your dream job faster. Try free - no sign up required.",
+
+  // ✅ TARGETED KEYWORDS
   keywords: [
     "AI Resume Builder",
-    "AI Cover Letter Generator",
-    "Free Resume Templates",
-    "Resume Tailor",
-    "ATS Resume",
-    "Cover Letter Generator",
-    "Job Application AI",
-    "Tailor Resume to Job Description",
-    "Resume Optimization",
-    "CV Builder",
-    "Recruiter-Friendly Resume",
     "AI Resume Tailor",
+    "AI Cover Letter Generator",
+    "Resume Tailor App",
+    "Tailor Resume to Job Description",
+    "ATS Resume Builder",
     "Free Resume Builder",
     "Professional Resume Templates",
+    "Resume Optimization",
+    "Cover Letter Maker",
+    "Job Application AI",
+    "Recruiter-Friendly Resume",
+    "Resume Scoring",
+    "Smart Resume Builder",
+    "Instant Resume Tailor",
   ],
+
   authors: [{ name: "Resume Tailor App" }],
   creator: "Resume Tailor App",
   publisher: "Resume Tailor App",
   robots: "index, follow",
   metadataBase: new URL("https://www.resumetailorapp.com"),
+
   alternates: {
     canonical: "/",
   },
+
+  // ✅ COMPELLING OPENGRAPH
   openGraph: {
-    title:
-      "Resume Tailor App: AI-Powered Resume & Cover Letter Builder for ATS",
+    title: "AI Resume Builder: Get 3x More Interviews (Free Tool)",
     description:
-      "Land your dream job. Instantly tailor your resume & cover letter to any job description using AI. Get past ATS and impress recruiters.",
+      "Upload your resume, paste any job description, get a perfectly tailored resume & cover letter in 30 seconds. Free tool with 25+ years recruiter insights. No sign up required.",
     url: "https://www.resumetailorapp.com",
     siteName: "Resume Tailor App",
     images: [
@@ -55,25 +58,108 @@ export const metadata: Metadata = {
         url: "https://www.resumetailorapp.com/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Resume Tailor App - AI Resume Builder & Cover Letter Generator",
+        alt: "AI Resume Builder - Tailor Resume & Cover Letter Instantly",
       },
     ],
     locale: "en_US",
     type: "website",
   },
+
+  // ✅ ENGAGING TWITTER CARD
   twitter: {
     card: "summary_large_image",
-    title: "Resume Tailor App: AI-Powered Resume & Cover Letter Builder",
+    title: "🚀 AI Resume Builder: Get 3x More Interviews",
     description:
-      "Tailor your resume & cover letter to any job in seconds. Beat the ATS and get more interviews.",
+      "Tailor your resume & cover letter to any job in 30 seconds. Free tool, no sign up required. Beat ATS, impress recruiters.",
     creator: "@resumetailorapp",
     images: ["https://www.resumetailorapp.com/og-image.png"],
   },
+
+  // ✅ GOOGLE VERIFICATION
   verification: {
     google: "ui4OZp4LsNsMYVfVniuAafxkX9mxh2vvMSvoEemFxgI",
   },
-  category: "career",
-  classification: "AI Resume Builder, Career Tools, Job Search",
+
+  category: "Career & Employment",
+
+  // ✅ MOBILE OPTIMIZATION
+  appleWebApp: {
+    capable: true,
+    title: "AI Resume Builder",
+    statusBarStyle: "black-translucent",
+  },
+
+  // ✅ VIEWPORT FOR MOBILE
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
+};
+
+// ✅ HONEST STRUCTURED DATA (No fake ratings)
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "AI Resume Builder & Tailor",
+  url: "https://www.resumetailorapp.com",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web Browser",
+  description:
+    "AI-powered resume builder that instantly tailors your resume and cover letter to any job description. Get 3x more interviews with recruiter-optimized applications.",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+    description: "Free resume tailoring with optional premium features",
+    availability: "https://schema.org/InStock",
+  },
+  // ✅ REMOVED aggregateRating - Add back when you have real reviews
+  featureList: [
+    "AI-powered resume tailoring",
+    "Instant cover letter generation",
+    "ATS optimization",
+    "Recruiter insights built-in",
+    "Multiple professional templates",
+    "No sign up required for first use",
+  ],
+  author: {
+    "@type": "Organization",
+    name: "Resume Tailor App",
+    url: "https://www.resumetailorapp.com",
+  },
+};
+
+// ✅ HELPFUL FAQ STRUCTURED DATA
+const faqStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Is the AI Resume Builder free to use?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes! You get one free resume tailoring without signing up. When you create an account, you get 3 free credits every month.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How long does it take to tailor a resume?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Our AI tailors your resume and generates a matching cover letter in under 30 seconds.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Does it work with Applicant Tracking Systems (ATS)?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes! Our templates are specifically designed to pass ATS scans with high success rates.",
+      },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -84,71 +170,83 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* ✅ CRITICAL FIX - Absolute URLs with aggressive cache busting */}
+        {/* ✅ CLEAN FAVICON SET */}
         <link
           rel="icon"
-          href="https://www.resumetailorapp.com/favicon.ico?v=5"
+          href="https://www.resumetailorapp.com/favicon.ico?v=6"
           sizes="any"
         />
         <link
           rel="icon"
-          href="https://www.resumetailorapp.com/favicon.png?v=5"
+          href="https://www.resumetailorapp.com/favicon.png?v=6"
           type="image/png"
         />
-        <link
-          rel="shortcut icon"
-          href="https://www.resumetailorapp.com/favicon.ico?v=5"
-        />
 
-        {/* ✅ Apple Touch Icon with absolute URL */}
+        {/* ✅ APPLE TOUCH ICON */}
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="https://www.resumetailorapp.com/apple-touch-icon.png?v=5"
+          href="https://www.resumetailorapp.com/apple-touch-icon.png?v=6"
         />
 
-        {/* ✅ Theme Color */}
+        {/* ✅ THEME COLORS */}
         <meta name="theme-color" content="#2563eb" />
 
-        {/* ✅ Structured Data with absolute URL */}
+        {/* ✅ HONEST STRUCTURED DATA */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              name: "Resume Tailor App",
-              url: "https://www.resumetailorapp.com",
-              applicationCategory: "BusinessApplication",
-              operatingSystem: "Web Browser",
-              description:
-                "AI-powered resume and cover letter builder that tailors applications to specific job descriptions",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              author: {
-                "@type": "Organization",
-                name: "Resume Tailor App",
-                url: "https://www.resumetailorapp.com",
-              },
-            }),
+            __html: JSON.stringify(structuredData),
           }}
         />
 
-        {/* ✅ Additional meta for favicon consistency */}
-        <meta
-          property="og:image"
-          content="https://www.resumetailorapp.com/favicon.png"
+        {/* ✅ FAQ STRUCTURED DATA */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(faqStructuredData),
+          }}
         />
+
+        {/* ✅ GOOGLE SITE VERIFICATION */}
         <meta
-          name="twitter:image"
-          content="https://www.resumetailorapp.com/favicon.png"
+          name="google-site-verification"
+          content="ui4OZp4LsNsMYVfVniuAafxkX9mxh2vvMSvoEemFxgI"
+        />
+
+        {/* ✅ PRELOAD FONTS */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+
+        {/* ✅ SOCIAL IMAGE META */}
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
+        <meta
+          property="og:image:alt"
+          content="AI Resume Builder - Tailor Resume & Cover Letter"
+        />
+
+        {/* ✅ TWITTER META */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@resumetailorapp" />
+        <meta name="twitter:creator" content="@resumetailorapp" />
+        <meta name="twitter:image:alt" content="AI Resume Builder Screenshot" />
+
+        {/* ✅ MOBILE APPS */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
         />
       </head>
       <body
-        className={`${geistSans.className} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+        className={`${inter.className} antialiased flex flex-col min-h-screen bg-white`}
       >
         <SessionProvider>
           <Navbar />
