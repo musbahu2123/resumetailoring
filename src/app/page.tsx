@@ -443,288 +443,190 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* Main Form Section */}
+      {/* Main Form Section - COMPRESSED */}
       <section
         id="builder"
-        className="relative py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50"
+        className="relative py-12 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.05),rgba(255,255,255,0))]"></div>
-
         <div className="container mx-auto max-w-6xl relative z-10">
-          {/* Header Section - UPDATED */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-full px-5 py-2.5 mb-6 shadow-sm">
+          {/* Compressed Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-lg px-4 py-2 mb-4">
               <Award className="w-4 h-4 text-amber-600" />
               <span className="text-sm font-medium text-blue-800">
-                Powered by Top Recruiter Expertise
+                Recruiter-Powered AI Builder
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-              Transform Your Resume with
-              <br />
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Recruiter-Level Intelligence
-              </span>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+              Build Your Perfect Resume
             </h1>
-
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-              From building from scratch to perfect job-specific tailoring —
-              everything you need to land interviews, powered by proven
-              recruiting methodologies.
+            <p className="text-gray-600 max-w-2xl mx-auto mb-6">
+              Get a job-specific resume + cover letter in 2 minutes
             </p>
 
-            <div className="flex flex-wrap gap-3 justify-center items-center mb-6">
-              <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-100">
-                <CheckCircle className="w-4 h-4" />
-                <span>No sign-up for 1 free generation</span>
+            <div className="flex flex-wrap gap-2 justify-center items-center mb-4">
+              <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 px-3 py-1.5 rounded-full">
+                <CheckCircle className="w-3 h-3" />
+                <span>1 free generation</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-4 py-2 rounded-full border border-blue-100">
-                <CheckCircle className="w-4 h-4" />
-                <span>3 free credits monthly when signed up</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Benefits Stats - UPDATED */}
-          <div className="bg-gradient-to-r from-blue-50/60 to-purple-50/60 rounded-xl p-6 mb-10 border border-blue-100">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4">
-                <div className="text-2xl md:text-3xl font-bold text-blue-700 mb-1">
-                  90%+
-                </div>
-                <div className="text-xs md:text-sm text-gray-700 font-medium">
-                  ATS Score
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Guaranteed optimization
-                </div>
-              </div>
-
-              <div className="text-center p-4">
-                <div className="text-2xl md:text-3xl font-bold text-purple-700 mb-1">
-                  3x
-                </div>
-                <div className="text-xs md:text-sm text-gray-700 font-medium">
-                  More Interviews
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Tailored resumes perform better
-                </div>
-              </div>
-
-              <div className="text-center p-4">
-                <div className="text-2xl md:text-3xl font-bold text-green-700 mb-1">
-                  30s
-                </div>
-                <div className="text-xs md:text-sm text-gray-700 font-medium">
-                  Processing
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Lightning fast results
-                </div>
-              </div>
-
-              <div className="text-center p-4">
-                <div className="text-2xl md:text-3xl font-bold text-amber-700 mb-1">
-                  25+
-                </div>
-                <div className="text-xs md:text-sm text-gray-700 font-medium">
-                  Years Expertise
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Recruiting insights built-in
-                </div>
+              <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full">
+                <CheckCircle className="w-3 h-3" />
+                <span>3 free credits/month</span>
               </div>
             </div>
           </div>
 
-          {/* Feature Cards - UPDATED */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-            <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 hover:border-blue-200 transition-all duration-300 hover:shadow-md">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg flex items-center justify-center mb-4 border border-blue-100">
-                <Wand2 className="w-6 h-6 text-blue-600" />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2 text-sm">
-                Build from Scratch
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                No resume? We'll create one with AI based on your experience
-              </p>
+          {/* Mini Stats - Horizontal */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <div className="text-center bg-white px-4 py-2 rounded-lg border border-gray-100 min-w-[100px]">
+              <div className="text-lg font-bold text-blue-600">90%+</div>
+              <div className="text-xs text-gray-600">ATS Score</div>
             </div>
-
-            <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 hover:border-purple-200 transition-all duration-300 hover:shadow-md">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-50 rounded-lg flex items-center justify-center mb-4 border border-purple-100">
-                <Upload className="w-6 h-6 text-purple-600" />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2 text-sm">
-                Upload & Enhance
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                PDF, DOCX, or paste text. Get expert formatting improvements
-              </p>
+            <div className="text-center bg-white px-4 py-2 rounded-lg border border-gray-100 min-w-[100px]">
+              <div className="text-lg font-bold text-purple-600">3x</div>
+              <div className="text-xs text-gray-600">More Interviews</div>
             </div>
-
-            <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 hover:border-green-200 transition-all duration-300 hover:shadow-md">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-50 rounded-lg flex items-center justify-center mb-4 border border-green-100">
-                <Target className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2 text-sm">
-                Job-Specific Tailoring
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Match your resume exactly to any job description for higher
-                success
-              </p>
-            </div>
-
-            <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 hover:border-amber-200 transition-all duration-300 hover:shadow-md">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-amber-50 rounded-lg flex items-center justify-center mb-4 border border-amber-100">
-                <BarChart className="w-6 h-6 text-amber-600" />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2 text-sm">
-                ATS Optimization
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Beat applicant tracking systems with keyword-optimized content
-              </p>
+            <div className="text-center bg-white px-4 py-2 rounded-lg border border-gray-100 min-w-[100px]">
+              <div className="text-lg font-bold text-green-600">30s</div>
+              <div className="text-xs text-gray-600">Processing</div>
             </div>
           </div>
 
+          {/* Simplified Feature Indicators */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8">
+            <div className="flex items-center gap-2 bg-white p-3 rounded-lg border border-gray-100">
+              <div className="w-8 h-8 bg-blue-50 rounded flex items-center justify-center">
+                <Wand2 className="w-4 h-4 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-gray-800">Build</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-white p-3 rounded-lg border border-gray-100">
+              <div className="w-8 h-8 bg-purple-50 rounded flex items-center justify-center">
+                <Upload className="w-4 h-4 text-purple-600" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-gray-800">Upload</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-white p-3 rounded-lg border border-gray-100">
+              <div className="w-8 h-8 bg-green-50 rounded flex items-center justify-center">
+                <Target className="w-4 h-4 text-green-600" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-gray-800">Tailor</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-white p-3 rounded-lg border border-gray-100">
+              <div className="w-8 h-8 bg-amber-50 rounded flex items-center justify-center">
+                <BarChart className="w-4 h-4 text-amber-600" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-gray-800">
+                  Optimize
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* MAIN FORM STARTS HERE - Users see this immediately */}
           {!results ? (
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <UploadSection
-                  resumeFile={resumeFile}
-                  setResumeFile={handleSetResumeFile}
-                  resumeText={resumeText}
-                  setResumeText={handleSetResumeText}
-                  onPdfTextExtracted={(text) => {
-                    setResumeText(text);
-                    setExtractedPdfText(text);
-                  }}
-                  forceActiveTab={forceActiveTab}
-                  isLoggedIn={isLoggedIn}
-                  onResumeReadyForJob={(resumeText) => {
-                    setResumeText(resumeText);
-                  }}
-                  onEnhancedResumeReady={handleEnhancedResumeReady}
-                  onEnhanceError={handleEnhanceError}
-                />
-                <JobDescriptionSection
-                  jobDescriptionText={jobDescriptionText}
-                  setJobDescriptionText={setJobDescriptionText}
-                />
-              </div>
+            <div className="animate-fade-in">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <UploadSection
+                    resumeFile={resumeFile}
+                    setResumeFile={handleSetResumeFile}
+                    resumeText={resumeText}
+                    setResumeText={handleSetResumeText}
+                    onPdfTextExtracted={(text) => {
+                      setResumeText(text);
+                      setExtractedPdfText(text);
+                    }}
+                    forceActiveTab={forceActiveTab}
+                    isLoggedIn={isLoggedIn}
+                    onResumeReadyForJob={(resumeText) => {
+                      setResumeText(resumeText);
+                    }}
+                    onEnhancedResumeReady={handleEnhancedResumeReady}
+                    onEnhanceError={handleEnhanceError}
+                  />
+                  <JobDescriptionSection
+                    jobDescriptionText={jobDescriptionText}
+                    setJobDescriptionText={setJobDescriptionText}
+                  />
+                </div>
 
-              {/* ✅ ENTIRELY UPDATED SUBMISSION & ERROR AREA */}
-              <div className="text-center">
-                <Button
-                  type="submit"
-                  className="px-12 py-5 text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl"
-                  disabled={isButtonDisabled}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <Loader />
-                      {getButtonText()}
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5" />
-                      {getButtonText()}
-                    </span>
-                  )}
-                </Button>
+                {/* Submission Button */}
+                <div className="text-center pt-2">
+                  <Button
+                    type="submit"
+                    className="px-10 py-4 text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200 rounded-lg w-full md:w-auto"
+                    disabled={isButtonDisabled}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader />
+                        {getButtonText()}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="w-5 h-5" />
+                        {getButtonText()}
+                      </span>
+                    )}
+                  </Button>
 
-                {/* ✅ UPDATED ERROR HANDLING WITH PRICING REDIRECT */}
-                {error && (
-                  <div className="mt-4">
-                    {error.includes("Monthly credits exhausted") ? (
-                      <div className="text-center">
-                        <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-4 mb-3">
-                          <p className="text-red-600 font-medium mb-2">
+                  {error && (
+                    <div className="mt-3">
+                      {error.includes("Monthly credits exhausted") ? (
+                        <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-3">
+                          <p className="text-red-600 font-medium text-sm mb-1">
                             Monthly credits exhausted
                           </p>
-                          <p className="text-sm text-gray-600 mb-3">
-                            You've used all 3 credits this month. Upgrade to Pro
-                            for unlimited generations!
+                          <p className="text-xs text-gray-600 mb-2">
+                            Upgrade for unlimited generations
                           </p>
-                          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <Button
-                              onClick={() =>
-                                (window.location.href = "/pricing")
-                              }
-                              className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white text-sm"
-                              size="sm"
-                              type="button"
-                            >
-                              🚀 View Premium Plans
-                            </Button>
-                          </div>
+                          <Button
+                            onClick={() => (window.location.href = "/pricing")}
+                            className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white text-xs px-3 py-1"
+                            size="sm"
+                            type="button"
+                          >
+                            View Premium Plans
+                          </Button>
                         </div>
-                        <p className="text-sm text-gray-500">
-                          or wait till next month for free credits reset
-                        </p>
-                      </div>
-                    ) : error.includes("Sign up to get free generations") ? (
-                      <div className="text-center">
-                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 mb-3">
-                          <p className="text-blue-600 font-medium mb-2">
+                      ) : error.includes("Sign up to get free generations") ? (
+                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-3">
+                          <p className="text-blue-600 font-medium text-sm mb-2">
                             Free generation used
-                          </p>
-                          <p className="text-sm text-gray-600 mb-3">
-                            You've used your free generation. Sign up for 3 free
-                            credits every month!
                           </p>
                           <Button
                             onClick={() => setIsModalOpen(true)}
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm"
+                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs px-3 py-1"
                             size="sm"
                             type="button"
                           >
                             Sign Up for Free Credits
                           </Button>
                         </div>
-                      </div>
-                    ) : (
-                      <p className="text-red-500 mt-4 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
-                        {error}
-                      </p>
-                    )}
-                  </div>
-                )}
+                      ) : (
+                        <p className="text-red-500 text-sm bg-red-50 p-2 rounded-lg border border-red-200">
+                          {error}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
-                <p className="flex items-center justify-center gap-2 text-sm text-gray-500 mt-4">
-                  <Lock size={14} />
-                  Your files are private and secure
-                </p>
-
-                {!resumeText && !resumeFile && !jobDescriptionText && (
-                  <p className="text-sm text-blue-600 mt-3 bg-blue-50 p-2 rounded-lg">
-                    💡 Don't have a resume? No problem! We'll build one for you
-                    based on the job description.
+                  <p className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-3">
+                    <Lock size={12} />
+                    Your files are private and secure
                   </p>
-                )}
-
-                {/* ✅ UPDATED: Sign up prompt with clearer messaging */}
-                {!isLoggedIn && !isAnonymousUser && (
-                  <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-                    <p className="text-blue-700 text-sm mb-2">
-                      <strong>Free generation used!</strong> Sign up to get 3
-                      free credits every month.
-                    </p>
-                    <Button
-                      onClick={() => setIsModalOpen(true)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-sm"
-                      type="button"
-                    >
-                      Sign Up for Monthly Credits
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </form>
+                </div>
+              </form>
+            </div>
           ) : (
             <ResumePreviewDashboard
               tailoredResume={results.tailoredResume}

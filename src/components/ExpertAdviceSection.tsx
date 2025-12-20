@@ -265,7 +265,10 @@ export default function ExpertAdviceSection() {
               Stop using templates that fail automated systems. Build
               professional resumes that pass ATS and impress recruiters.
             </p>
-            <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-lg font-medium hover:shadow-md transition-shadow text-sm">
+            <button
+              onClick={() => (window.location.href = "#builder")}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-lg font-medium hover:shadow-md transition-shadow text-sm"
+            >
               Build Professional Resume
             </button>
           </div>

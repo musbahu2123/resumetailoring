@@ -1,3 +1,370 @@
+// "use client";
+
+// import { Button } from "@/components/ui/button";
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card";
+// import {
+//   Sparkles,
+//   Upload,
+//   Target,
+//   Zap,
+//   Download,
+//   Shield,
+//   FileText,
+//   Users,
+//   Rocket,
+//   Crown,
+//   Wand2,
+//   ArrowRight,
+// } from "lucide-react";
+// import Image from "next/image";
+// import { useRouter } from "next/navigation";
+// import { useState } from "react";
+
+// export default function AIResumeBuilderClient() {
+//   const router = useRouter();
+//   const [activeTab, setActiveTab] = useState<"build" | "upload" | "paste">(
+//     "build"
+//   );
+
+//   const navigateToBuilder = () => {
+//     router.push("/#builder");
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4">
+//       <div className="container mx-auto max-w-6xl">
+//         {/* Hero - Direct Funnel */}
+//         <div className="text-center mb-12">
+//           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 px-4 py-2 rounded-lg mb-4">
+//             <Zap className="w-4 h-4 text-blue-600" />
+//             <span className="text-sm font-medium text-blue-700">
+//               No Sign-Up Required
+//             </span>
+//           </div>
+
+//           <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+//             Free AI Resume Builder & Tailor
+//           </h1>
+//           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+//             Build from scratch or upload existing. Get a job-specific resume +
+//             cover letter in 2 minutes.
+//           </p>
+
+//           {/* Interactive Demo Card */}
+//           <Card className="max-w-3xl mx-auto shadow-lg border border-gray-200">
+//             <CardHeader className="pb-3">
+//               <CardTitle className="text-lg">
+//                 Start Building Your Perfect Application
+//               </CardTitle>
+//               <CardDescription>
+//                 Choose your method - we'll help you build, enhance, and tailor
+//                 for any job
+//               </CardDescription>
+//             </CardHeader>
+//             <CardContent>
+//               {/* Tab Navigation */}
+//               <div className="flex flex-wrap border-b mb-6">
+//                 <button
+//                   type="button"
+//                   className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+//                     activeTab === "build"
+//                       ? "border-b-2 border-blue-600 text-blue-600"
+//                       : "text-gray-600 hover:text-gray-800"
+//                   }`}
+//                   onClick={() => setActiveTab("build")}
+//                 >
+//                   <Wand2 className="w-4 h-4" />
+//                   Build from Scratch
+//                 </button>
+//                 <button
+//                   type="button"
+//                   className={`px-4 py-2 text-sm font-medium ${
+//                     activeTab === "upload"
+//                       ? "border-b-2 border-blue-600 text-blue-600"
+//                       : "text-gray-600 hover:text-gray-800"
+//                   }`}
+//                   onClick={() => setActiveTab("upload")}
+//                 >
+//                   Upload Resume
+//                 </button>
+//                 <button
+//                   type="button"
+//                   className={`px-4 py-2 text-sm font-medium ${
+//                     activeTab === "paste"
+//                       ? "border-b-2 border-blue-600 text-blue-600"
+//                       : "text-gray-600 hover:text-gray-800"
+//                   }`}
+//                   onClick={() => setActiveTab("paste")}
+//                 >
+//                   Paste Text
+//                 </button>
+//               </div>
+
+//               {/* Content based on active tab */}
+//               {activeTab === "build" && (
+//                 <div className="text-center py-6">
+//                   <Wand2 className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+//                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
+//                     Build Professional Resume with AI
+//                   </h3>
+//                   <p className="text-gray-600 mb-4">
+//                     No resume? Our AI will guide you through creating one from
+//                     scratch.
+//                   </p>
+//                   <Button
+//                     onClick={navigateToBuilder}
+//                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+//                   >
+//                     Start Building with AI
+//                   </Button>
+//                 </div>
+//               )}
+
+//               {activeTab === "upload" && (
+//                 <div className="text-center py-6">
+//                   <Upload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+//                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
+//                     Upload & Enhance Your Resume
+//                   </h3>
+//                   <p className="text-gray-600 mb-4">
+//                     Upload PDF, DOCX, or Word files for AI enhancement.
+//                   </p>
+//                   <Button
+//                     onClick={navigateToBuilder}
+//                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+//                   >
+//                     Upload & Enhance Now
+//                   </Button>
+//                 </div>
+//               )}
+
+//               {activeTab === "paste" && (
+//                 <div className="space-y-4">
+//                   <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">
+//                       Paste Your Resume Text
+//                     </label>
+//                     <textarea
+//                       className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+//                       placeholder="Copy and paste your current resume here..."
+//                     />
+//                   </div>
+//                   <Button
+//                     onClick={navigateToBuilder}
+//                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+//                   >
+//                     Enhance & Tailor This Resume
+//                   </Button>
+//                 </div>
+//               )}
+
+//               <div className="mt-6 text-center">
+//                 <div className="inline-flex items-center gap-2 text-sm text-gray-500">
+//                   <Shield className="w-4 h-4" />
+//                   Your data is private and secure
+//                 </div>
+//               </div>
+//             </CardContent>
+//           </Card>
+
+//           {/* Simple CTA Button */}
+//           <div className="mt-8">
+//             <Button
+//               size="lg"
+//               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl px-8"
+//               onClick={navigateToBuilder}
+//             >
+//               <Target className="w-5 h-5 mr-2" />
+//               Start Free - Build/Upload Your Resume
+//             </Button>
+//           </div>
+//         </div>
+
+//         {/* Process Flow */}
+//         <div className="mb-12">
+//           <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
+//             Simple 3-Step Process
+//           </h2>
+//           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+//             <Card className="text-center border border-gray-200 hover:border-blue-200 transition-colors">
+//               <CardContent className="p-6">
+//                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+//                   <span className="text-blue-600 font-bold">1</span>
+//                 </div>
+//                 <h3 className="font-semibold text-gray-800 mb-2">
+//                   Build or Upload
+//                 </h3>
+//                 <p className="text-gray-600 text-sm">
+//                   Create from scratch, upload files, or paste your resume text
+//                 </p>
+//               </CardContent>
+//             </Card>
+//             <Card className="text-center border border-gray-200 hover:border-purple-200 transition-colors">
+//               <CardContent className="p-6">
+//                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+//                   <span className="text-purple-600 font-bold">2</span>
+//                 </div>
+//                 <h3 className="font-semibold text-gray-800 mb-2">
+//                   Enhance & Tailor
+//                 </h3>
+//                 <p className="text-gray-600 text-sm">
+//                   AI enhances content and tailors for specific job descriptions
+//                 </p>
+//               </CardContent>
+//             </Card>
+//             <Card className="text-center border border-gray-200 hover:border-green-200 transition-colors">
+//               <CardContent className="p-6">
+//                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+//                   <span className="text-green-600 font-bold">3</span>
+//                 </div>
+//                 <h3 className="font-semibold text-gray-800 mb-2">
+//                   Preview & Download
+//                 </h3>
+//                 <p className="text-gray-600 text-sm">
+//                   Get polished resume + cover letter as professional PDFs
+//                 </p>
+//               </CardContent>
+//             </Card>
+//           </div>
+//         </div>
+
+//         {/* Unique Value - Clean Version */}
+//         <Card className="bg-white border border-gray-200 mb-12">
+//           <CardContent className="p-6">
+//             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+//               Why Choose Our AI Resume Builder
+//             </h2>
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//               <div className="flex items-start gap-3">
+//                 <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+//                   <Shield className="w-5 h-5 text-blue-600" />
+//                 </div>
+//                 <div>
+//                   <h3 className="font-semibold text-gray-800">
+//                     Recruiter Intelligence
+//                   </h3>
+//                   <p className="text-gray-600 text-sm mt-1">
+//                     Trained on 25+ years of Google recruiting experience
+//                   </p>
+//                 </div>
+//               </div>
+//               <div className="flex items-start gap-3">
+//                 <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+//                   <FileText className="w-5 h-5 text-green-600" />
+//                 </div>
+//                 <div>
+//                   <h3 className="font-semibold text-gray-800">
+//                     Dual Documents
+//                   </h3>
+//                   <p className="text-gray-600 text-sm mt-1">
+//                     Get both tailored resume AND cover letter together
+//                   </p>
+//                 </div>
+//               </div>
+//               <div className="flex items-start gap-3">
+//                 <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
+//                   <Target className="w-5 h-5 text-purple-600" />
+//                 </div>
+//                 <div>
+//                   <h3 className="font-semibold text-gray-800">
+//                     ATS Optimization
+//                   </h3>
+//                   <p className="text-gray-600 text-sm mt-1">
+//                     Formatted to pass automated systems and impress humans
+//                   </p>
+//                 </div>
+//               </div>
+//               <div className="flex items-start gap-3">
+//                 <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
+//                   <Zap className="w-5 h-5 text-orange-600" />
+//                 </div>
+//                 <div>
+//                   <h3 className="font-semibold text-gray-800">
+//                     Instant Results
+//                   </h3>
+//                   <p className="text-gray-600 text-sm mt-1">
+//                     From upload to download in under 2 minutes
+//                   </p>
+//                 </div>
+//               </div>
+//             </div>
+//           </CardContent>
+//         </Card>
+
+//         {/* Recruiter Insight - Clean */}
+//         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100 mb-12">
+//           <div className="flex items-start gap-4">
+//             <div className="flex-shrink-0">
+//               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+//                 <Users className="w-5 h-5 text-white" />
+//               </div>
+//             </div>
+//             <div>
+//               <h3 className="font-semibold text-gray-800 mb-2">
+//                 From a Google Recruiter with 25+ Years Experience
+//               </h3>
+//               <blockquote className="text-gray-700 italic border-l-3 border-blue-500 pl-4 mb-3">
+//                 "Generic resumes fail. Tailoring to the job description is
+//                 critical, and even small errors create doubt. Our AI solves this
+//                 automatically."
+//               </blockquote>
+//               <div className="flex flex-wrap gap-2">
+//                 {[
+//                   "ATS-optimized",
+//                   "Error-free",
+//                   "Tailored content",
+//                   "Professional format",
+//                 ].map((item, i) => (
+//                   <span
+//                     key={i}
+//                     className="inline-flex items-center gap-1 bg-white px-2 py-1 rounded text-xs text-gray-700"
+//                   >
+//                     ✓ {item}
+//                   </span>
+//                 ))}
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Final CTA */}
+//         <div className="text-center">
+//           <Card className="border border-gray-200 shadow-sm max-w-2xl mx-auto">
+//             <CardContent className="p-8">
+//               <h3 className="text-2xl font-bold text-gray-900 mb-4">
+//                 Ready to Transform Your Job Search?
+//               </h3>
+//               <p className="text-gray-600 mb-6">
+//                 Join professionals getting 3x more interviews with perfectly
+//                 tailored applications.
+//               </p>
+//               <Button
+//                 size="lg"
+//                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8"
+//                 onClick={navigateToBuilder}
+//               >
+//                 <Target className="w-5 h-5 mr-2" />
+//                 Start Building Free
+//               </Button>
+//               <p className="text-gray-500 text-sm mt-4">
+//                 No credit card • Build/Upload/Enhance/Tailor/Download •
+//                 Professional PDFs
+//               </p>
+//             </CardContent>
+//           </Card>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+////////////////////////////////
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -15,532 +382,435 @@ import {
   Zap,
   Download,
   Shield,
-  ArrowRight,
-  CheckCircle,
   FileText,
   Users,
   Rocket,
   Crown,
+  Wand2,
+  ArrowRight,
+  Mail,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-/**
- * Client component for the AI Resume Builder page.
- * Contains all interactive logic, state, and client-side hooks.
- */
 export default function AIResumeBuilderClient() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [activeTab, setActiveTab] = useState<"build" | "upload" | "paste">(
+    "build"
+  );
+  const [activePath, setActivePath] = useState<"enhance" | "tailor">("enhance");
 
-  // Navigate to main page and scroll to builder section
   const navigateToBuilder = () => {
     router.push("/#builder");
   };
 
-  // Auto-advance steps
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentStep((prev) => (prev === 3 ? 0 : prev + 1));
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
-      <div className="container mx-auto max-w-7xl">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
-            <Zap className="w-4 h-4" />
-            AI-Powered Resume Builder
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4">
+      <div className="container mx-auto max-w-6xl">
+        {/* Hero - Direct Funnel */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 px-4 py-2 rounded-lg mb-4">
+            <Zap className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-700">
+              No Sign-Up Required • Choose Your Path
+            </span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">
-            AI Resume Builder & Tailor
+
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+            Free AI Resume Builder & Tailor
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Create ATS-optimized resumes tailored to any job description. Our AI
-            powered by 25+ years of Google recruiter experience analyzes
-            requirements and generates perfect resumes that get interviews.
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
+            Choose what you need: Enhance your resume OR get both resume + cover
+            letter tailored for a specific job.
           </p>
-          <div className="flex items-center justify-center gap-4">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-              onClick={navigateToBuilder}
-            >
-              <Target className="w-5 h-5 mr-2" />
-              Build Your AI Resume - Free
-            </Button>
-            <a
-              className="text-sm text-gray-600 underline hover:text-blue-600 transition-colors"
-              href="/free-resume-templates"
-            >
-              View Templates
-            </a>
-          </div>
-        </div>
 
-        {/* Unique Value Proposition Section */}
-        <Card className="bg-white border-0 shadow-xl rounded-2xl mb-16">
-          <CardContent className="p-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
-              Why Our AI Resume Builder is Different
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Powered by Recruiter Intelligence
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      Our AI is trained on 25+ years of Google recruiting
-                      experience, understanding exactly what hiring managers
-                      look for.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Zap className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Dual Document Generation
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      Get both a perfectly tailored resume AND matching cover
-                      letter in one click - no extra work required.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Target className="w-4 h-4 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Smart ATS Optimization
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      Automatically formats your resume to pass through
-                      Applicant Tracking Systems while maintaining human
-                      readability.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Rocket className="w-4 h-4 text-orange-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Instant Professional Results
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      From upload to download in under 2 minutes. Perfect
-                      formatting, zero errors, recruiter-approved structure.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* How It Works - Interactive Demo */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              How Our AI Resume Builder Works
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Simple 4-step process to get your perfectly tailored resume and
-              cover letter
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <Card className="border-0 shadow-2xl rounded-2xl overflow-hidden">
-              <CardContent className="p-0">
-                <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
-                  {/* Step Indicator */}
-                  <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-8 text-white">
-                    <div className="space-y-6">
-                      {[
-                        {
-                          step: 1,
-                          title: "Upload or Build Resume",
-                          description:
-                            "Upload existing resume (PDF/DOCX) or build from scratch with AI assistance",
-                        },
-                        {
-                          step: 2,
-                          title: "Paste Job Description",
-                          description:
-                            "Provide the job description you're targeting for perfect tailoring",
-                        },
-                        {
-                          step: 3,
-                          title: "AI Analysis & Generation",
-                          description:
-                            "Our AI analyzes requirements and generates tailored resume + cover letter",
-                        },
-                        {
-                          step: 4,
-                          title: "Download & Apply",
-                          description:
-                            "Get professionally formatted PDFs ready for your application",
-                        },
-                      ].map((item, index) => (
-                        <div
-                          key={index}
-                          className={`flex items-start gap-4 p-4 rounded-lg transition-all duration-300 ${
-                            currentStep === index
-                              ? "bg-white/20 scale-105"
-                              : "bg-white/10"
-                          }`}
-                        >
-                          <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                              currentStep === index
-                                ? "bg-white text-blue-600"
-                                : "bg-white/20 text-white"
-                            }`}
-                          >
-                            {item.step}
-                          </div>
-                          <div>
-                            <h3 className="font-semibold">{item.title}</h3>
-                            <p className="text-sm opacity-90">
-                              {item.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Visual Demo */}
-                  <div className="p-8 bg-white">
-                    <div className="h-full flex items-center justify-center">
-                      {currentStep === 0 && (
-                        <div className="text-center">
-                          <Upload className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-                          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                            Multiple Upload Options
-                          </h3>
-                          <p className="text-gray-600">
-                            Choose from PDF upload, DOCX upload, text paste, or
-                            build from scratch
-                          </p>
-                        </div>
-                      )}
-                      {currentStep === 1 && (
-                        <div className="text-center">
-                          <FileText className="w-16 h-16 text-green-600 mx-auto mb-4" />
-                          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                            Job Description Analysis
-                          </h3>
-                          <p className="text-gray-600">
-                            AI extracts key skills, requirements, and keywords
-                            for perfect tailoring
-                          </p>
-                        </div>
-                      )}
-                      {currentStep === 2 && (
-                        <div className="text-center">
-                          <Sparkles className="w-16 h-16 text-purple-600 mx-auto mb-4" />
-                          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                            AI Magic Happens
-                          </h3>
-                          <p className="text-gray-600">
-                            Generating both resume and cover letter with
-                            recruiter-approved content
-                          </p>
-                        </div>
-                      )}
-                      {currentStep === 3 && (
-                        <div className="text-center">
-                          <Download className="w-16 h-16 text-orange-600 mx-auto mb-4" />
-                          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                            Professional Results
-                          </h3>
-                          <p className="text-gray-600">
-                            Download perfectly formatted PDFs ready for your job
-                            application
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Recruiter Quote Section - ENHANCED */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-2xl p-8 mb-16">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 text-lg mb-3">
-                Why AI Resume Tailoring Works (From Google Recruiter with 25+
-                Years Experience)
+          {/* ⭐ CRITICAL: PATH SELECTION */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+              <h3 className="font-semibold text-gray-800 mb-4 text-center">
+                What would you like to create?
               </h3>
-              <blockquote className="text-gray-700 italic border-l-4 border-blue-500 pl-4 py-2 mb-4">
-                "The biggest mistake I see is candidates using generic resumes.
-                When a resume isn't tailored to the job description, it's very
-                difficult and time-consuming for me to understand why this
-                experience would align to this role. Even one typo suggests a
-                lack of attention to detail that makes me question their fit for
-                the position."
-              </blockquote>
-              <p className="text-gray-600">
-                Our AI resume builder solves these exact problems: automatic
-                tailoring to job descriptions, error-free formatting, and clear
-                alignment between your experience and role requirements.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
-                {[
-                  "Automatic job description analysis",
-                  "Keyword optimization for ATS systems",
-                  "Error-free professional formatting",
-                  "Recruiter-approved content structure",
-                  "Transferable skills highlighting",
-                  "Quantifiable achievements emphasis",
-                ].map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-gray-700">{feature}</span>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* ENHANCE ONLY PATH */}
+                <button
+                  onClick={() => setActivePath("enhance")}
+                  className={`p-5 rounded-xl text-left border-2 transition-all duration-200 ${
+                    activePath === "enhance"
+                      ? "border-blue-500 bg-blue-50 shadow-sm"
+                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`p-2 rounded-lg ${
+                        activePath === "enhance" ? "bg-blue-100" : "bg-gray-100"
+                      }`}
+                    >
+                      <Sparkles
+                        className={`w-5 h-5 ${
+                          activePath === "enhance"
+                            ? "text-blue-600"
+                            : "text-gray-600"
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-800 mb-1">
+                        🚀 Enhance My Resume
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        Improve formatting, content & ATS score
+                      </p>
+                      <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+                        <FileText className="w-3 h-3" />
+                        <span>Resume only</span>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </button>
+
+                {/* FULL TAILORING PATH */}
+                <button
+                  onClick={() => setActivePath("tailor")}
+                  className={`p-5 rounded-xl text-left border-2 transition-all duration-200 ${
+                    activePath === "tailor"
+                      ? "border-purple-500 bg-purple-50 shadow-sm"
+                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`p-2 rounded-lg ${
+                        activePath === "tailor"
+                          ? "bg-purple-100"
+                          : "bg-gray-100"
+                      }`}
+                    >
+                      <Target
+                        className={`w-5 h-5 ${
+                          activePath === "tailor"
+                            ? "text-purple-600"
+                            : "text-gray-600"
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-800 mb-1">
+                        🎯 Tailor for Specific Job
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        Get resume + matching cover letter
+                      </p>
+                      <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+                        <FileText className="w-3 h-3" />
+                        <Mail className="w-3 h-3" />
+                        <span>Both documents</span>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              {/* Path Description */}
+              <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+                <p className="text-sm text-gray-700 text-center">
+                  {activePath === "enhance"
+                    ? "✓ Perfect if you just want to improve your current resume's formatting and content"
+                    : "✓ Perfect if you're applying for a specific job and need both resume AND cover letter"}
+                </p>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* AI Builder CTA */}
-        <div className="text-center mb-16">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white shadow-2xl max-w-4xl mx-auto">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Sparkles className="w-6 h-6" />
-              <h2 className="text-2xl font-bold">
-                No Manual Resume Writing Needed
-              </h2>
-            </div>
-            <p className="text-blue-100 text-lg mb-6 max-w-2xl mx-auto">
-              Upload your resume and job description - our AI automatically
-              tailors both your resume and cover letter, optimizes for ATS
-              systems, and generates professional formatting instantly.
-            </p>
+          {/* Interactive Demo Card */}
+          <Card className="max-w-3xl mx-auto shadow-lg border border-gray-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">
+                {activePath === "enhance"
+                  ? "Start Enhancing Your Resume"
+                  : "Start Tailoring Your Application"}
+              </CardTitle>
+              <CardDescription>
+                {activePath === "enhance"
+                  ? "Choose how you'd like to provide your resume for AI enhancement"
+                  : "Provide your resume and the job description for perfect tailoring"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Tab Navigation */}
+              <div className="flex flex-wrap border-b mb-6">
+                <button
+                  type="button"
+                  className={`px-4 py-2 text-sm font-medium flex items-center gap-2 ${
+                    activeTab === "build"
+                      ? "border-b-2 border-blue-600 text-blue-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                  onClick={() => setActiveTab("build")}
+                >
+                  <Wand2 className="w-4 h-4" />
+                  Build from Scratch
+                </button>
+                <button
+                  type="button"
+                  className={`px-4 py-2 text-sm font-medium ${
+                    activeTab === "upload"
+                      ? "border-b-2 border-blue-600 text-blue-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                  onClick={() => setActiveTab("upload")}
+                >
+                  Upload Resume
+                </button>
+                <button
+                  type="button"
+                  className={`px-4 py-2 text-sm font-medium ${
+                    activeTab === "paste"
+                      ? "border-b-2 border-blue-600 text-blue-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                  onClick={() => setActiveTab("paste")}
+                >
+                  Paste Text
+                </button>
+              </div>
+
+              {/* Content based on active tab */}
+              {activeTab === "build" && (
+                <div className="text-center py-6">
+                  <Wand2 className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    Build Professional Resume with AI
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    No resume? Our AI will guide you through creating one from
+                    scratch.
+                  </p>
+                  <Button
+                    onClick={navigateToBuilder}
+                    className={`${
+                      activePath === "enhance"
+                        ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                        : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    } text-white`}
+                  >
+                    {activePath === "enhance"
+                      ? "Start Building & Enhancing"
+                      : "Start Building & Tailoring"}
+                  </Button>
+                </div>
+              )}
+
+              {activeTab === "upload" && (
+                <div className="text-center py-6">
+                  <Upload className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    Upload & {activePath === "enhance" ? "Enhance" : "Tailor"}{" "}
+                    Your Resume
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Upload PDF, DOCX, or Word files for AI{" "}
+                    {activePath === "enhance" ? "enhancement" : "tailoring"}.
+                  </p>
+                  <Button
+                    onClick={navigateToBuilder}
+                    className={`${
+                      activePath === "enhance"
+                        ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                        : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    } text-white`}
+                  >
+                    {activePath === "enhance"
+                      ? "Upload & Enhance Now"
+                      : "Upload & Tailor Now"}
+                  </Button>
+                </div>
+              )}
+
+              {activeTab === "paste" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Paste Your Resume Text
+                    </label>
+                    <textarea
+                      className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="Copy and paste your current resume here..."
+                    />
+                  </div>
+                  <Button
+                    onClick={navigateToBuilder}
+                    className={`w-full ${
+                      activePath === "enhance"
+                        ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                        : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    } text-white`}
+                  >
+                    {activePath === "enhance"
+                      ? "Enhance This Resume"
+                      : "Tailor This Resume"}
+                  </Button>
+                </div>
+              )}
+
+              {/* Job Description Preview for Tailor Path */}
+              {activePath === "tailor" && (
+                <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-100">
+                  <div className="flex items-start gap-3">
+                    <Mail className="w-5 h-5 text-purple-600 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-purple-800">
+                        You'll also get a matching cover letter!
+                      </p>
+                      <p className="text-xs text-purple-600 mt-1">
+                        When you provide a job description, our AI generates
+                        both a tailored resume AND a professional cover letter
+                        that matches perfectly.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-6 text-center">
+                <div className="inline-flex items-center gap-2 text-sm text-gray-500">
+                  <Shield className="w-4 h-4" />
+                  Your data is private and secure
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Simple CTA Button */}
+          <div className="mt-8">
             <Button
               size="lg"
-              className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+              className={`${
+                activePath === "enhance"
+                  ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                  : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              } text-white shadow-lg hover:shadow-xl px-8`}
               onClick={navigateToBuilder}
             >
               <Target className="w-5 h-5 mr-2" />
-              Build Your AI Resume - Free
+              {activePath === "enhance"
+                ? "Start Enhancing Free"
+                : "Start Tailoring Free"}
             </Button>
-            <p className="text-blue-200 text-sm mt-4">
-              🚀 Get both resume + cover letter • ATS-optimized • Instant
-              download
+            <p className="text-gray-500 text-sm mt-3">
+              {activePath === "enhance"
+                ? "Get improved formatting & ATS optimization"
+                : "Get both resume + cover letter for your target job"}
             </p>
           </div>
         </div>
 
-        {/* Before/After Examples */}
-        <Card className="bg-white border-0 shadow-xl rounded-2xl mb-16">
-          <CardContent className="p-8">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-              See the AI Transformation
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-red-600 text-center">
-                  Before AI
+        {/* Process Flow - Updated for Both Paths */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
+            {activePath === "enhance"
+              ? "Simple 3-Step Enhancement"
+              : "Complete 3-Step Application"}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="text-center border border-gray-200 hover:border-blue-200 transition-colors">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <span className="text-blue-600 font-bold">1</span>
+                </div>
+                <h3 className="font-semibold text-gray-800 mb-2">
+                  Build or Upload
                 </h3>
-                <div className="bg-red-50 p-6 rounded-lg border border-red-200">
-                  <p className="text-gray-700 italic mb-4">
-                    "Managed social media accounts and created content"
-                  </p>
-                  <ul className="space-y-2 text-sm text-red-600">
-                    <li>• Vague responsibilities</li>
-                    <li>• No measurable results</li>
-                    <li>• Passive language</li>
-                    <li>• No specific skills mentioned</li>
-                  </ul>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-green-600 text-center">
-                  After AI
-                </h3>
-                <div className="bg-green-50 p-6 rounded-lg border border-green-200">
-                  <p className="text-gray-700 font-medium mb-4">
-                    "Grew social media engagement by 240% through data-driven
-                    content strategy, increasing follower base from 5K to 17K in
-                    6 months"
-                  </p>
-                  <ul className="space-y-2 text-sm text-green-600">
-                    <li>• Quantifiable achievements (240% growth)</li>
-                    <li>• Specific metrics (5K to 17K followers)</li>
-                    <li>• Active, results-focused language</li>
-                    <li>• Clear strategy mentioned</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Features Grid - Enhanced */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {[
-            {
-              icon: <Upload className="w-8 h-8 text-blue-600" />,
-              title: "Flexible Upload Options",
-              description:
-                "Upload PDF, DOCX, paste text, or build from scratch with our AI assistant",
-            },
-            {
-              icon: <Target className="w-8 h-8 text-green-600" />,
-              title: "Smart Job Analysis",
-              description:
-                "AI extracts key requirements and skills from any job description automatically",
-            },
-            {
-              icon: <Sparkles className="w-8 h-8 text-purple-600" />,
-              title: "Dual Document Generation",
-              description:
-                "Get both perfectly tailored resume AND matching cover letter in one click",
-            },
-            {
-              icon: <Shield className="w-8 h-8 text-orange-600" />,
-              title: "ATS Optimization",
-              description:
-                "Formatted to pass through applicant tracking systems while impressing humans",
-            },
-            {
-              icon: <Download className="w-8 h-8 text-red-600" />,
-              title: "Instant Professional PDFs",
-              description:
-                "Download ready-to-use documents with perfect formatting and zero errors",
-            },
-            {
-              icon: <Crown className="w-8 h-8 text-indigo-600" />,
-              title: "Recruiter-Approved Content",
-              description:
-                "Content structured based on 25+ years of top company recruiting experience",
-            },
-          ].map((feature, index) => (
-            <Card
-              key={index}
-              className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow h-full"
-            >
-              <CardHeader>
-                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  {feature.icon}
-                </div>
-                <CardTitle className="text-lg">{feature.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-gray-600">
-                  {feature.description}
-                </CardDescription>
+                <p className="text-gray-600 text-sm">
+                  Create from scratch, upload files, or paste your resume text
+                </p>
               </CardContent>
             </Card>
-          ))}
-        </div>
-
-        {/* FAQ Section */}
-        <Card className="bg-white border-0 shadow-xl rounded-2xl mb-16">
-          <CardContent className="p-8">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-              Frequently Asked Questions
-            </h2>
-            <div className="space-y-6">
-              {[
-                {
-                  question:
-                    "How is your AI different from other resume builders?",
-                  answer:
-                    "Our AI is uniquely trained on 25+ years of Google recruiting experience and generates both resume AND cover letter together. Most tools only do one or the other, and none have our level of recruiter insight built in.",
-                },
-                {
-                  question: "Do I get both a resume and cover letter?",
-                  answer:
-                    "Yes! Unlike other tools, our AI generates a perfectly matched resume and cover letter pair. Both documents are tailored to your specific job description with consistent messaging and professional formatting.",
-                },
-                {
-                  question: "How long does the AI generation take?",
-                  answer:
-                    "Typically under 2 minutes. The AI analyzes your resume and job description, then creates both perfectly formatted documents with ATS optimization and recruiter-approved content.",
-                },
-                {
-                  question: "Can I use this for multiple job applications?",
-                  answer:
-                    "Absolutely! Generate unique resume and cover letter pairs for each job application. The AI tailors both documents specifically to each job description's requirements and keywords.",
-                },
-                {
-                  question: "What makes your ATS optimization better?",
-                  answer:
-                    "Our AI understands both machine readability AND human preferences. We optimize for ATS systems while maintaining the visual appeal and storytelling that recruiters love, based on real recruiting experience at top companies.",
-                },
-              ].map((faq, index) => (
+            <Card
+              className={`text-center border transition-colors ${
+                activePath === "enhance"
+                  ? "border-gray-200 hover:border-cyan-200"
+                  : "border-gray-200 hover:border-purple-200"
+              }`}
+            >
+              <CardContent className="p-6">
                 <div
-                  key={index}
-                  className="border-b border-gray-200 pb-6 last:border-b-0"
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4 ${
+                    activePath === "enhance" ? "bg-cyan-100" : "bg-purple-100"
+                  }`}
                 >
-                  <h3 className="font-bold text-lg text-gray-900 mb-2">
-                    {faq.question}
-                  </h3>
-                  <p className="text-gray-700">{faq.answer}</p>
+                  <span
+                    className={`font-bold ${
+                      activePath === "enhance"
+                        ? "text-cyan-600"
+                        : "text-purple-600"
+                    }`}
+                  >
+                    2
+                  </span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <h3 className="font-semibold text-gray-800 mb-2">
+                  {activePath === "enhance" ? "AI Enhancement" : "AI Tailoring"}
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  {activePath === "enhance"
+                    ? "AI improves formatting, content & ATS score"
+                    : "AI tailors resume + generates matching cover letter"}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="text-center border border-gray-200 hover:border-green-200 transition-colors">
+              <CardContent className="p-6">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <span className="text-green-600 font-bold">3</span>
+                </div>
+                <h3 className="font-semibold text-gray-800 mb-2">
+                  Preview & Download
+                </h3>
+                <p className="text-gray-600 text-sm">
+                  {activePath === "enhance"
+                    ? "Get polished resume as professional PDF"
+                    : "Get both documents as professional PDFs"}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Final CTA */}
         <div className="text-center">
-          <Card className="border-0 shadow-lg max-w-4xl mx-auto">
-            <CardContent className="p-12">
-              <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                Ready to Build Your AI-Optimized Resume?
+          <Card className="border border-gray-200 shadow-sm max-w-2xl mx-auto">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                {activePath === "enhance"
+                  ? "Ready to Enhance Your Resume?"
+                  : "Ready to Land Your Dream Job?"}
               </h3>
-              <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
-                Join thousands of job seekers who land more interviews with our
-                AI-powered resume builder. Get perfectly tailored resumes and
-                cover letters that actually work, backed by 25+ years of
-                recruiting expertise.
+              <p className="text-gray-600 mb-6">
+                {activePath === "enhance"
+                  ? "Join professionals getting better formatting and ATS scores with AI enhancement."
+                  : "Join professionals getting 3x more interviews with perfectly tailored applications."}
               </p>
               <Button
                 size="lg"
-                className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transition-all duration-200"
+                className={`${
+                  activePath === "enhance"
+                    ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                    : "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                } text-white px-8`}
                 onClick={navigateToBuilder}
               >
                 <Target className="w-5 h-5 mr-2" />
-                Build Your AI Resume Now - Free
+                {activePath === "enhance"
+                  ? "Start Enhancing Free"
+                  : "Start Tailoring Free"}
               </Button>
               <p className="text-gray-500 text-sm mt-4">
-                No credit card required • Get both resume + cover letter •
-                Professional formatting • Instant download
+                {activePath === "enhance"
+                  ? "No credit card • Professional formatting • ATS optimization"
+                  : "No credit card • Both documents • Perfect matching • ATS optimization"}
               </p>
             </CardContent>
           </Card>
