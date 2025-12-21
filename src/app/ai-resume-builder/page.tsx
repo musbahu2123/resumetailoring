@@ -5,7 +5,7 @@ import AIResumeBuilderClient from "./AIResumeBuilderClient";
 export const metadata: Metadata = {
   title: "AI Resume Builder - Beat ATS & Get 3x More Interviews (Free 2025)",
   description:
-    "🚀 AI Resume Builder with 25+ Years Google Recruiter Experience. Tailor your resume to any job in 2 minutes. Get both resume + cover letter. Free ATS-optimized templates.",
+    "🚀 AI Resume Builder with 25+ Years Recruiter Experience. Tailor your resume to any job in 2 minutes. Get both resume + cover letter. Free ATS-optimized templates.",
   keywords: [
     "AI resume builder",
     "free resume builder",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "resume tailor",
     "AI resume generator",
     "resume maker",
-    "Google recruiter resume",
+    "recruiter resume",
     "resume and cover letter generator",
   ],
 };

@@ -51,7 +51,7 @@ export default function ExpertAdviceSection() {
                     <div className="relative w-full h-full">
                       <Image
                         src="https://img.youtube.com/vi/TNwjmzqCuMo/maxresdefault.jpg"
-                        alt="Google Recruiter Resume Advice"
+                        alt="Recruiter Resume Advice"
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                         sizes="(max-width: 768px) 100vw, 50vw"
@@ -78,7 +78,7 @@ export default function ExpertAdviceSection() {
                   width="100%"
                   height="400"
                   src="https://www.youtube.com/embed/TNwjmzqCuMo?autoplay=1"
-                  title="Google Recruiter Resume Advice"
+                  title="Recruiter Resume Advice"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
