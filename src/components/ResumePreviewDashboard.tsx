@@ -106,10 +106,10 @@ export default function ResumePreviewDashboard({
     setPdfPreviewData(null);
 
     try {
-      console.log(
-        `Generating PDF preview for ${selectedDocument}:`,
-        selectedTemplate
-      );
+      // console.log(
+      //   `Generating PDF preview for ${selectedDocument}:`,
+      //   selectedTemplate
+      // );
 
       const response = await fetch("/api/generate-preview", {
         method: "POST",
@@ -135,10 +135,10 @@ export default function ResumePreviewDashboard({
         throw new Error("No PDF data received from server");
       }
 
-      console.log(
-        `${selectedDocument} preview generated successfully, data length:`,
-        data.pdfData.length
-      );
+      // console.log(
+      //   `${selectedDocument} preview generated successfully, data length:`,
+      //   data.pdfData.length
+      // );
       setPdfPreviewData(data.pdfData);
     } catch (error) {
       console.error("Preview generation error:", error);
@@ -166,9 +166,29 @@ export default function ResumePreviewDashboard({
     // We can use this for additional loading states if needed
   };
 
-  // ✅ FIXED: Pass both templateId AND documentType to onDownload
-  const handleDownload = (templateId: string) => {
-    onDownload(templateId, selectedDocument);
+  // ✅ UPDATED: Download with Google Ads conversion tracking
+  const handleDownload = async (templateId: string) => {
+    try {
+      console.log(
+        `📥 Starting download: ${selectedDocument}, template: ${templateId}`
+      );
+
+      // First, call the original onDownload function
+      onDownload(templateId, selectedDocument);
+
+      // Then track the conversion in Google Ads
+      if (typeof window !== "undefined" && (window as any).gtag) {
+        (window as any).gtag("event", "conversion", {
+          send_to: "AW-17821565833/document_downloaded",
+          value: 0.0,
+          currency: "USD",
+        });
+
+        console.log("✅ Google Ads conversion tracked for:", selectedDocument);
+      }
+    } catch (error) {
+      console.error("Download or tracking error:", error);
+    }
   };
 
   const getDocumentTitle = () => {

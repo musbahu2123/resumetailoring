@@ -39,12 +39,12 @@ export default function HeroSection({
         <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
           {/* Left Content */}
           <div className="lg:w-1/2 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm mb-6">
+            {/* <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm mb-6">
               <Award className="w-4 h-4 text-amber-600" />
               <span className="text-sm font-medium text-gray-700">
                 Powered by Proven Recruiting Methodologies
               </span>
-            </div>
+            </div> */}
 
             {/* IMPRESSIVE HEADLINE - KEPT */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight">

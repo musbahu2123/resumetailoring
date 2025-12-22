@@ -35,7 +35,7 @@ export default function PdfPreviewRenderer({
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const addDebugInfo = (info: string) => {
-    console.log(`[DEBUG] ${info}`);
+    // console.log(`[DEBUG] ${info}`);
     setDebugInfo((prev) => [
       ...prev.slice(-10),
       `[${new Date().toLocaleTimeString()}] ${info}`,

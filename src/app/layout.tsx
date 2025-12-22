@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next"; // ✅ ADD Viewport to import
 import { Inter } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
+import Script from "next/script";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 
   // ✅ HIGH-CONVERSION DESCRIPTION: Problem → Solution → Benefit → CTA
   description:
-    "Get 3x more interviews with AI-powered resume tailoring. Upload your resume, paste any job description, and instantly generate a perfectly tailored resume & cover letter. Free tool with 25+ years of recruiter insights built-in. Beat ATS systems, impress recruiters, and land your dream job faster. Try free - no sign up required.",
+    "Get 3x more interviews with AI-powered resume builder & tailor.Build and enhance or tailor  and upload and enhance or tailor your resume, paste any job description, and instantly generate a perfectly tailored resume & cover letter. Free tool with 25+ years of recruiter insights built-in. Beat ATS systems, impress recruiters, and land your dream job faster. Try free - no sign up required.",
 
   // ✅ TARGETED KEYWORDS
   keywords: [
@@ -89,12 +90,15 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
   },
 
-  // ✅ VIEWPORT FOR MOBILE
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
+  // ❌ REMOVED viewport from metadata (will be moved to separate export)
+};
+
+// ✅ SEPARATE VIEWPORT EXPORT (NEW in Next.js 14+)
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#2563eb", // ✅ MOVED theme-color from <meta> tag to here
 };
 
 // ✅ HONEST STRUCTURED DATA (No fake ratings)
@@ -170,6 +174,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* ✅ ADD GOOGLE ADS TAG HERE - Right after opening <head> */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17821565833"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-tag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17821565833');
+          `}
+        </Script>
+
         {/* ✅ CLEAN FAVICON SET */}
         <link
           rel="icon"
@@ -189,8 +207,8 @@ export default function RootLayout({
           href="https://www.resumetailorapp.com/apple-touch-icon.png?v=6"
         />
 
-        {/* ✅ THEME COLORS */}
-        <meta name="theme-color" content="#2563eb" />
+        {/* ❌ REMOVED theme-color meta tag (now in viewport export) */}
+        {/* <meta name="theme-color" content="#2563eb" /> */}
 
         {/* ✅ HONEST STRUCTURED DATA */}
         <script

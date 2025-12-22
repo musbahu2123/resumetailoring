@@ -128,9 +128,9 @@ export async function POST(req: Request) {
     headers.set("Content-Type", "application/pdf");
     headers.set("Content-Disposition", `attachment; filename=${filename}`);
 
-    console.log(
-      `✅ Successfully generated ${documentType} download: ${filename}`
-    );
+    // console.log(
+    //   `✅ Successfully generated ${documentType} download: ${filename}`
+    // );
     return new NextResponse(pdfBuffer, { status: 200, headers });
   } catch (error) {
     console.error("Download API error:", error);
